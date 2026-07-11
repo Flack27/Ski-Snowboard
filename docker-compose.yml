@@ -1,0 +1,57 @@
+services:
+  pocketbase:
+    build: ./pocketbase
+    container_name: spapens-pocketbase
+    restart: unless-stopped
+    environment:
+      - PB_ENCRYPTION_KEY=${PB_ENCRYPTION_KEY}
+      # Lets the PocketBase hook trigger on-demand revalidation of the Next site.
+      - REVALIDATE_URL=http://web:3000/api/revalidate
+      - REVALIDATE_SECRET=${REVALIDATE_SECRET}
+    volumes:
+      - ./pocketbase/pb_data:/pb/pb_data
+      - ./pocketbase/pb_hooks:/pb/pb_hooks
+      - ./pocketbase/pb_migrations:/pb/pb_migrations
+    ports:
+      # Exposed for the reverse proxy (map beheer.<domain> -> 8090).
+      - "8090:8090"
+    networks:
+      - spapens
+
+  web:
+    build:
+      context: ./web
+      args:
+        # NEXT_PUBLIC_* must be present at BUILD time (baked into the client bundle).
+        - NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL}
+        - NEXT_PUBLIC_POCKETBASE_URL=${NEXT_PUBLIC_POCKETBASE_URL}
+        - NEXT_PUBLIC_TURNSTILE_SITE_KEY=${NEXT_PUBLIC_TURNSTILE_SITE_KEY}
+        - NEXT_PUBLIC_GOOGLE_PLACE_ID=${NEXT_PUBLIC_GOOGLE_PLACE_ID}
+    container_name: spapens-web
+    restart: unless-stopped
+    depends_on:
+      - pocketbase
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL}
+      - NEXT_PUBLIC_POCKETBASE_URL=${NEXT_PUBLIC_POCKETBASE_URL}
+      - POCKETBASE_URL=${POCKETBASE_URL}
+      - POCKETBASE_ADMIN_EMAIL=${POCKETBASE_ADMIN_EMAIL}
+      - POCKETBASE_ADMIN_PASSWORD=${POCKETBASE_ADMIN_PASSWORD}
+      - MOLLIE_API_KEY=${MOLLIE_API_KEY}
+      - RESEND_API_KEY=${RESEND_API_KEY}
+      - MAIL_FROM=${MAIL_FROM}
+      - MAIL_OWNER=${MAIL_OWNER}
+      - REVALIDATE_SECRET=${REVALIDATE_SECRET}
+      - TURNSTILE_SECRET_KEY=${TURNSTILE_SECRET_KEY}
+      - NEXT_PUBLIC_GOOGLE_PLACE_ID=${NEXT_PUBLIC_GOOGLE_PLACE_ID}
+      - GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY}
+    ports:
+      # Exposed for the reverse proxy (map <domain> -> 3000).
+      - "3000:3000"
+    networks:
+      - spapens
+
+networks:
+  spapens:
+    driver: bridge

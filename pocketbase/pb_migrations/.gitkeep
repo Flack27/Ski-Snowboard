@@ -1,0 +1,2 @@
+# Schema-as-code lives here (products, orders, bookings, time_slots, settings, blocked_dates).
+# Added in the data-layer build step and validated against the running PocketBase container.
