@@ -36,13 +36,19 @@ function mapService(r: any): Service {
 }
 
 export async function getServices(): Promise<Service[]> {
-  const res = await fetch(
-    `${PB_INTERNAL}/api/collections/services/records?perPage=50&sort=sort`,
-    { next: { revalidate: 300, tags: ["services"] } },
-  );
-  if (!res.ok) return [];
-  const data = await res.json();
-  return (data.items ?? []).map(mapService);
+  try {
+    const res = await fetch(
+      `${PB_INTERNAL}/api/collections/services/records?perPage=50&sort=sort`,
+      { next: { revalidate: 300, tags: ["services"] } },
+    );
+    if (!res.ok) return [];
+    const data = await res.json();
+    return (data.items ?? []).map(mapService);
+  } catch {
+    // PB unreachable (e.g. at build time before the container is up) — fall back to
+    // empty; ISR revalidation repopulates once PB is available.
+    return [];
+  }
 }
 
 export function serviceImageUrl(s: Service, thumb?: string): string | null {

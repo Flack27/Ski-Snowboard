@@ -42,11 +42,17 @@ function mapProduct(r: any): Product {
 }
 
 async function pbGet(path: string) {
-  const res = await fetch(`${PB_INTERNAL}${path}`, {
-    next: { revalidate: 3600, tags: ["products"] },
-  });
-  if (!res.ok) throw new Error(`PocketBase ${res.status} for ${path}`);
-  return res.json();
+  try {
+    const res = await fetch(`${PB_INTERNAL}${path}`, {
+      next: { revalidate: 3600, tags: ["products"] },
+    });
+    if (!res.ok) return { items: [] };
+    return res.json();
+  } catch {
+    // PB unreachable (e.g. at build time before the container is up) — empty result;
+    // ISR revalidation repopulates once PB is available.
+    return { items: [] };
+  }
 }
 
 export async function getProducts(opts?: { category?: string }): Promise<Product[]> {
