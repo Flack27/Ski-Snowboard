@@ -116,3 +116,29 @@ export async function sendOrderConfirmation(o: OrderMail) {
   });
   return { sent: true as const };
 }
+
+// Pay-at-pickup: order is reserved, paid in person on collection.
+export async function sendReservationNotification(o: OrderMail) {
+  const r = client();
+  if (!r) return { skipped: true as const };
+  await r.emails.send({
+    from: FROM,
+    to: OWNER,
+    replyTo: o.customer_email,
+    subject: `Nieuwe reservering ${o.ref} — ${formatCents(o.amount)} (betaalt bij ophalen)`,
+    text: `Nieuwe reservering (${o.ref}) — betaling bij ophalen.\n\n${orderLines(o)}\n\nTotaal: ${formatCents(o.amount)}\n\nKlant: ${o.customer_name} <${o.customer_email}> ${o.customer_phone || ""}`,
+  });
+  return { sent: true as const };
+}
+
+export async function sendReservationConfirmation(o: OrderMail) {
+  const r = client();
+  if (!r || !o.customer_email) return { skipped: true as const };
+  await r.emails.send({
+    from: FROM,
+    to: o.customer_email,
+    subject: `Je reservering ${o.ref} — Spapens Outdoor & Snow`,
+    text: `Hoi ${o.customer_name},\n\nBedankt voor je reservering (${o.ref})! We houden je bestelling voor je apart. Je betaalt ${formatCents(o.amount)} bij het ophalen in Hilvarenbeek.\n\n${orderLines(o)}\n\nWe laten je weten wanneer je langs kunt komen. Vragen? Bel ${SITE.phoneDisplay}.\n\nGroeten,\nSpapens Outdoor & Snow`,
+  });
+  return { sent: true as const };
+}

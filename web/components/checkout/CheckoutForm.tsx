@@ -14,17 +14,24 @@ const inputCls =
 export function CheckoutForm({
   shippingEnabled,
   shippingPrice,
+  onlineEnabled,
+  pickupEnabled,
 }: {
   shippingEnabled: boolean;
   shippingPrice: number;
+  onlineEnabled: boolean;
+  pickupEnabled: boolean;
 }) {
   const items = useCart((s) => s.items);
   const subtotal = useCartSubtotal();
   const [form, setForm] = useState({ name: "", email: "", phone: "", address: "", postal: "", city: "" });
   const [fulfilment, setFulfilment] = useState<"pickup" | "shipping">("pickup");
+  const [method, setMethod] = useState<"online" | "pickup">(onlineEnabled ? "online" : "pickup");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const bothMethods = onlineEnabled && pickupEnabled;
+  const payOnline = onlineEnabled && (method === "online" || !pickupEnabled);
   const shipping = shippingEnabled && fulfilment === "shipping" ? shippingPrice : 0;
   const total = subtotal + shipping;
 
@@ -40,6 +47,7 @@ export function CheckoutForm({
           items: items.map((i) => ({ id: i.id, qty: i.qty })),
           customer: form,
           fulfilment,
+          paymentMethod: payOnline ? "online" : "pickup",
         }),
       });
       const data = await res.json().catch(() => ({}));
@@ -128,6 +136,36 @@ export function CheckoutForm({
             </div>
           )}
 
+          {bothMethods && (
+            <>
+              <div className="mb-3 mt-6 font-mono text-[11px] uppercase tracking-[0.14em] text-ice">
+                Betaalmethode
+              </div>
+              <div className="flex flex-col gap-2">
+                <label
+                  className={clsx(
+                    "flex cursor-pointer items-center gap-3 rounded-ctl border px-4 py-3 text-sm",
+                    method === "online" ? "border-ice bg-ice/5" : "border-line",
+                  )}
+                >
+                  <input type="radio" name="method" checked={method === "online"} onChange={() => setMethod("online")} className="accent-ice" />
+                  <span className="flex-1 font-medium text-fg">Online betalen</span>
+                  <span className="font-mono text-fg-dim">iDEAL e.a.</span>
+                </label>
+                <label
+                  className={clsx(
+                    "flex cursor-pointer items-center gap-3 rounded-ctl border px-4 py-3 text-sm",
+                    method === "pickup" ? "border-ice bg-ice/5" : "border-line",
+                  )}
+                >
+                  <input type="radio" name="method" checked={method === "pickup"} onChange={() => setMethod("pickup")} className="accent-ice" />
+                  <span className="flex-1 font-medium text-fg">Betalen bij ophalen</span>
+                  <span className="font-mono text-fg-dim">in de winkel</span>
+                </label>
+              </div>
+            </>
+          )}
+
           {error && <p className="mt-4 text-sm text-red-400">{error}</p>}
 
           <button
@@ -135,10 +173,16 @@ export function CheckoutForm({
             disabled={loading}
             className="mt-6 w-full rounded-ctl bg-ice py-3.5 font-display text-sm font-semibold text-on-ice transition-colors hover:bg-ice-hover disabled:opacity-60"
           >
-            {loading ? "Bezig…" : `Betaal ${formatCents(total)}`}
+            {loading
+              ? "Bezig…"
+              : payOnline
+                ? `Betaal ${formatCents(total)}`
+                : `Reserveren — betaal ${formatCents(total)} bij ophalen`}
           </button>
           <p className="mt-3 text-center font-mono text-[10px] text-fg-faint">
-            🔒 Veilig via Mollie · iDEAL, creditcard &amp; Bancontact
+            {payOnline
+              ? "🔒 Veilig via Mollie · iDEAL, creditcard & Bancontact"
+              : "Je bestelling wordt gereserveerd — betaal bij het ophalen in Hilvarenbeek."}
           </p>
         </form>
 

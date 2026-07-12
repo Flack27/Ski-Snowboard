@@ -55,11 +55,17 @@ PB_URL=... PB_ADMIN_EMAIL=... PB_ADMIN_PASSWORD=... node scripts/pb-services.mjs
 everything at **beheer.…/_/** → products, services (text/price/photo), orders, bookings,
 time slots, and the shipping toggle. Edits appear on the site within seconds (revalidation hook).
 
-## 4. Mollie (payments)
-1. Put `MOLLIE_API_KEY=test_…` in `.env`, `docker compose up -d web`.
-2. Do **one test purchase** end-to-end; confirm the order flips to **paid** and stock drops
-   (the webhook `https://…/api/mollie-webhook` must be reachable — it is once deployed).
-3. Swap to `live_…` and restart `web`. Done.
+## 4. Payments (online is optional, off by default)
+Managed in the admin → **`payment_settings`** (admin-only, so the Mollie key is never public).
+Out of the box: **pay-at-pickup on, online off** — orders are reserved and paid in person.
+
+To turn on online payments (whenever ready), in the admin open `payment_settings`:
+1. Set `online_enabled = true` and paste your Mollie key (`test_…` first, then `live_…`) into
+   `mollie_api_key`. Leave `pickup_enabled` on for both options, or off for online-only.
+2. Do **one test purchase**; confirm the order flips to **paid** and stock drops (the webhook
+   `https://…/api/mollie-webhook` must be reachable — it is once deployed).
+
+No redeploy or env change — it's all in the dashboard.
 
 ## 5. Resend (email)
 1. Add the domain in Resend → add the **SPF + DKIM DNS records** it gives you.

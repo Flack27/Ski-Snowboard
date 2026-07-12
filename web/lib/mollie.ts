@@ -1,15 +1,11 @@
 import { createMollieClient, type MollieClient } from "@mollie/api-client";
 
-// Server-only Mollie client. Uses the secret key from env (test_… first, then live_…).
-export function mollie(): MollieClient {
-  const apiKey = process.env.MOLLIE_API_KEY;
-  if (!apiKey || apiKey === "test_replace_me") {
-    throw new Error("MOLLIE_API_KEY is not configured");
-  }
+// The Mollie key now comes from the admin-only payment_settings record
+// (owner-managed), not env. Build a client from a given key.
+export function mollieFromKey(apiKey: string): MollieClient {
   return createMollieClient({ apiKey });
 }
 
-export function isMollieConfigured(): boolean {
-  const k = process.env.MOLLIE_API_KEY;
-  return !!k && k !== "test_replace_me";
+export function isMollieKey(key: string | undefined | null): key is string {
+  return !!key && (key.startsWith("test_") || key.startsWith("live_"));
 }

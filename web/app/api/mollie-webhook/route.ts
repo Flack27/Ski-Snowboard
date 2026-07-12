@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { revalidateTag } from "next/cache";
-import { mollie } from "@/lib/mollie";
+import { mollieFromKey, isMollieKey } from "@/lib/mollie";
 import { createAdminClient } from "@/lib/pocketbase";
+import { getPaymentSettings } from "@/lib/paymentSettings";
 import { sendOrderNotification, sendOrderConfirmation, type OrderMail } from "@/lib/mail";
 
 export const runtime = "nodejs";
@@ -24,7 +25,9 @@ export async function POST(req: Request) {
   if (!paymentId) return NextResponse.json({ ok: true });
 
   try {
-    const payment = await mollie().payments.get(paymentId);
+    const pay = await getPaymentSettings();
+    if (!isMollieKey(pay.mollieKey)) return NextResponse.json({ ok: true }); // online payments off
+    const payment = await mollieFromKey(pay.mollieKey).payments.get(paymentId);
     const status = payment.status; // paid | failed | expired | canceled | open | pending
     const pb = await createAdminClient();
 
