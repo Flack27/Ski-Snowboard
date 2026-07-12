@@ -11,9 +11,6 @@ export function SiteFooter() {
         <div>
           <div className="font-display text-base font-semibold">{SITE.name}</div>
           <p className="mt-3 max-w-xs text-sm leading-relaxed text-fg-dim">{SITE.description}</p>
-          <p className="mt-4 max-w-xs text-xs leading-relaxed text-fg-faint">
-            {SITE.appointmentNote}
-          </p>
         </div>
 
         <div className="text-sm">

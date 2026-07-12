@@ -13,9 +13,11 @@ export const metadata: Metadata = {
   alternates: { canonical: "/contact" },
 };
 
-const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-  `${SITE.address.street} ${SITE.address.postalCode} ${SITE.address.city}`,
-)}`;
+// The actual Google Maps business listing (not just the address pin).
+const mapsUrl =
+  "https://www.google.com/maps/place/Spapens+ski+%26+snowboard+service/@51.4884215,5.1347909,17z/data=!4m15!1m8!3m7!1s0x47c6c0ab698f55f5:0xc7918884f7a35631!2sPetershemstraat+16,+5081+ZB+Hilvarenbeek!3b1!8m2!3d51.4884215!4d5.1347909!16s%2Fg%2F11c1flvtdn!3m5!1s0x47c6c1d9e14847ff:0x3695237a9a87102e!8m2!3d51.4884215!4d5.1347909!16s%2Fg%2F11wgmjc_f0";
+// Live embedded map (keyless), centred on the shop.
+const mapEmbedUrl = `https://maps.google.com/maps?q=${SITE.geo.lat},${SITE.geo.lng}&z=16&output=embed`;
 
 export default async function ContactPage() {
   const [config, services] = await Promise.all([getBookingConfig(), getServices()]);
@@ -31,7 +33,7 @@ export default async function ContactPage() {
             Afspraak maken
           </div>
           <h1 className="font-display text-3xl font-semibold md:text-4xl">Boek een drop-off</h1>
-          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-fg-dim">
+          <p className="mt-3 text-sm leading-relaxed text-fg-dim">
             Kies een dienst, dag en tijd. Je brengt je materiaal langs in Hilvarenbeek; we laten je
             weten zodra het klaar is om op te halen.
           </p>
@@ -62,28 +64,22 @@ export default async function ContactPage() {
           </div>
 
           <div>
+            <div className="overflow-hidden rounded-card border border-line">
+              <iframe
+                src={mapEmbedUrl}
+                title="Locatie Spapens Outdoor & Snow"
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                className="h-52 w-full border-0"
+              />
+            </div>
             <a
               href={mapsUrl}
               target="_blank"
               rel="noopener noreferrer"
-              aria-label="Bekijk op Google Maps"
-              className="relative block h-44 overflow-hidden rounded-card border border-line"
-              style={{ background: "linear-gradient(135deg,#0e1519,#16232a)" }}
+              className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-ice hover:text-ice-hover"
             >
-              <span
-                className="absolute inset-0"
-                style={{
-                  backgroundImage:
-                    "linear-gradient(rgba(52,227,242,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(52,227,242,.06) 1px,transparent 1px)",
-                  backgroundSize: "26px 26px",
-                }}
-              />
-              <span className="absolute inset-0 flex items-center justify-center text-3xl text-ice drop-shadow-[0_0_8px_rgba(52,227,242,.6)]">
-                📍
-              </span>
-              <span className="absolute bottom-2 right-3 font-mono text-[9px] uppercase tracking-wide text-fg-faint">
-                Kaart — Hilvarenbeek
-              </span>
+              📍 Bekijk op Google Maps →
             </a>
 
             <div className="mt-6 font-mono text-[11px] uppercase tracking-[0.14em] text-ice">

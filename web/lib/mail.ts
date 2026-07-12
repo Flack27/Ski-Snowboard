@@ -1,6 +1,7 @@
 import { Resend } from "resend";
 import { SITE } from "./site";
 import { formatCents } from "./money";
+import { getEmailTemplates } from "./emailTemplates";
 
 // Transactional email via Resend. If RESEND_API_KEY is unset, sends are skipped
 // (returns { skipped: true }) so forms still succeed during development.
@@ -84,6 +85,22 @@ function orderLines(o: OrderMail) {
     .join("\n");
 }
 
+function escapeHtml(s: string) {
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+// Fills an editable customer-email template ({naam} {ref} {bedrag} {items}).
+function renderTemplate(tpl: string, o: OrderMail): string {
+  const itemsHtml = (o.line_items ?? [])
+    .map((li) => `${li.qty}× ${escapeHtml(li.name)} — ${formatCents(li.line_total_cents)}`)
+    .join("<br>");
+  return tpl
+    .replace(/\{naam\}/g, escapeHtml(o.customer_name ?? ""))
+    .replace(/\{ref\}/g, escapeHtml(o.ref))
+    .replace(/\{bedrag\}/g, formatCents(o.amount))
+    .replace(/\{items\}/g, itemsHtml);
+}
+
 export async function sendOrderNotification(o: OrderMail) {
   const r = client();
   if (!r) return { skipped: true as const };
@@ -104,15 +121,12 @@ export async function sendOrderNotification(o: OrderMail) {
 export async function sendOrderConfirmation(o: OrderMail) {
   const r = client();
   if (!r || !o.customer_email) return { skipped: true as const };
-  const delivery =
-    o.fulfilment === "shipping"
-      ? "We sturen je bestelling zo snel mogelijk op."
-      : "Je kunt je bestelling ophalen in Hilvarenbeek — we laten je weten wanneer het klaarstaat.";
+  const tpl = (await getEmailTemplates()).order;
   await r.emails.send({
     from: FROM,
     to: o.customer_email,
     subject: `Bevestiging bestelling ${o.ref} — Spapens Outdoor & Snow`,
-    text: `Hoi ${o.customer_name},\n\nBedankt voor je bestelling (${o.ref})! We hebben je betaling ontvangen.\n\n${orderLines(o)}\n\nTotaal: ${formatCents(o.amount)}\n\n${delivery}\n\nGroeten,\nSpapens Outdoor & Snow`,
+    html: renderTemplate(tpl, o),
   });
   return { sent: true as const };
 }
@@ -134,11 +148,12 @@ export async function sendReservationNotification(o: OrderMail) {
 export async function sendReservationConfirmation(o: OrderMail) {
   const r = client();
   if (!r || !o.customer_email) return { skipped: true as const };
+  const tpl = (await getEmailTemplates()).reservation;
   await r.emails.send({
     from: FROM,
     to: o.customer_email,
     subject: `Je reservering ${o.ref} — Spapens Outdoor & Snow`,
-    text: `Hoi ${o.customer_name},\n\nBedankt voor je reservering (${o.ref})! We houden je bestelling voor je apart. Je betaalt ${formatCents(o.amount)} bij het ophalen in Hilvarenbeek.\n\n${orderLines(o)}\n\nWe laten je weten wanneer je langs kunt komen. Vragen? Bel ${SITE.phoneDisplay}.\n\nGroeten,\nSpapens Outdoor & Snow`,
+    html: renderTemplate(tpl, o),
   });
   return { sent: true as const };
 }
