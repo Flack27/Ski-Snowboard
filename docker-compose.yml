@@ -13,8 +13,9 @@ services:
       - ./pocketbase/pb_hooks:/pb/pb_hooks
       - ./pocketbase/pb_migrations:/pb/pb_migrations
     ports:
-      # Exposed for the reverse proxy (map beheer.<domain> -> 8090).
-      - "8090:8090"
+      # LAN access to the admin (8090 is taken by the Josette stack, so 8091 on the host).
+      # Public access is via the Cloudflare Tunnel -> beheer.sosoutdoor.nl.
+      - "8091:8090"
     networks:
       - spapens
 
@@ -47,10 +48,29 @@ services:
       - NEXT_PUBLIC_GOOGLE_PLACE_ID=${NEXT_PUBLIC_GOOGLE_PLACE_ID}
       - GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY}
     ports:
-      # Exposed for the reverse proxy (map <domain> -> 3000).
-      - "3000:3000"
+      # LAN preview (3000 is taken by the Josette stack, so 3001 on the host).
+      # Public access is via the Cloudflare Tunnel -> sosoutdoor.nl.
+      - "3001:3000"
     networks:
       - spapens
+
+  # Cloudflare Tunnel — the public entrypoint (no router ports opened). Uncomment once the
+  # tunnel is created in Cloudflare; put its token in .env (CLOUDFLARE_TUNNEL_TOKEN), then
+  # `docker compose up -d`. Configure these public hostnames in the CF dashboard:
+  #     sosoutdoor.nl         -> http://web:3000
+  #     beheer.sosoutdoor.nl  -> http://pocketbase:8090
+  # cloudflared:
+  #   image: cloudflare/cloudflared:latest
+  #   container_name: spapens-cloudflared
+  #   restart: unless-stopped
+  #   command: tunnel --no-autoupdate run
+  #   environment:
+  #     - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}
+  #   depends_on:
+  #     - web
+  #     - pocketbase
+  #   networks:
+  #     - spapens
 
 networks:
   spapens:

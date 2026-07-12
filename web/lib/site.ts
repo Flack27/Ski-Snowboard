@@ -4,13 +4,13 @@
 export const SITE = {
   name: "Spapens Outdoor & Snow",
   shortName: "SOS",
-  url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://waxen-en-slijpen-hilvarenbeek.nl",
+  url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://sosoutdoor.nl",
   tagline: "Waxed for speed, tuned for thrill.",
   description:
     "Met de hand waxen, slijpen en onderhoud van ski's en snowboards in Hilvarenbeek. Plus een wisselende voorraad tweedehands ski's, boards en gear.",
   appointmentNote:
     "De winkel en werkplaats zijn uitsluitend op afspraak geopend — plan online of bel even voordat je langskomt.",
-  email: "info@waxen-en-slijpen-hilvarenbeek.nl",
+  email: "info@sosoutdoor.nl",
   phone: "+31657284765",
   phoneDisplay: "06 57284765",
   address: {
