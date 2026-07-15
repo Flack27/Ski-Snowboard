@@ -34,7 +34,7 @@ export default async function ShopPage() {
       ) : (
         <div className="grid grid-cols-2 gap-4 sm:gap-5 md:grid-cols-3 xl:grid-cols-4">
           {products.map((p) => (
-            <ProductCard key={p.id} product={p} images={productImageUrls(p, "800x800")} />
+            <ProductCard key={p.id} product={p} images={productImageUrls(p, "1200x1200f")} />
           ))}
         </div>
       )}

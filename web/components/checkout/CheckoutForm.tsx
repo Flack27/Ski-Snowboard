@@ -193,7 +193,7 @@ export function CheckoutForm({
               <li key={i.id} className="flex items-center gap-3">
                 <div className="relative h-12 w-12 flex-none overflow-hidden rounded-lg bg-ink-800">
                   {i.image ? (
-                    <Image src={i.image} alt={i.name} fill sizes="48px" className="img-treatment object-cover" />
+                    <Image src={i.image} alt={i.name} fill sizes="48px" className="img-treatment object-contain" />
                   ) : null}
                 </div>
                 <div className="flex-1">

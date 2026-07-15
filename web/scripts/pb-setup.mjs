@@ -20,7 +20,9 @@ const JSONF = (name) => ({ name, type: "json", required: false, options: { maxSi
 const SEL = (name, values, maxSelect = 1, required = false) => ({ name, type: "select", required, options: { maxSelect, values } });
 const FILE = (name, maxSelect = 10) => ({
   name, type: "file", required: false,
-  options: { maxSelect, maxSize: 5242880, mimeTypes: ["image/jpeg", "image/png", "image/webp", "image/avif"], thumbs: ["400x400", "800x800"], protected: false },
+  // "f" = fit inside the box, keeping the photo's ratio. Plain "WxH" would crop
+  // to a square and cut the ends off a ski. Sizes missing here fall back to the full file.
+  options: { maxSelect, maxSize: 5242880, mimeTypes: ["image/jpeg", "image/png", "image/webp", "image/avif"], thumbs: ["400x400f", "1200x1200f"], protected: false },
 });
 
 const collections = [

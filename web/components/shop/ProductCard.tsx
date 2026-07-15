@@ -41,7 +41,7 @@ export function ProductCard({ product, images }: { product: Product; images: str
   return (
     <div className="group flex flex-col overflow-hidden rounded-card border border-line bg-ink-700">
       <button type="button" onClick={showDetails} aria-label={`Bekijk ${product.name}`} className="relative block">
-        <ProductImage url={imageUrl} alt={product.name} />
+        <ProductImage url={imageUrl} alt={product.name} className="aspect-[1/2]" />
         {onSale && !soldOut && (
           <span className="absolute right-3 top-3 rounded-md bg-ice px-2 py-1 font-mono text-[9px] font-semibold uppercase tracking-wide text-on-ice">
             {pct ? `−${pct}%` : "Sale"}

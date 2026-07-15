@@ -73,6 +73,9 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
   return item ? mapProduct(item) : null;
 }
 
+// PocketBase thumb formats: "WxH" crops to that box, "WxHf" fits inside it and
+// keeps the original ratio. Product shots must stay uncropped — use the "f" form.
+
 /** Public file URL (via the browser-reachable PB URL) for the first image, optionally a thumb. */
 export function productImageUrl(p: Product, thumb?: string): string | null {
   if (!p.images.length) return null;

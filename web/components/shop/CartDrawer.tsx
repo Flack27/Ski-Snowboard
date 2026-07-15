@@ -71,7 +71,7 @@ export function CartDrawer() {
                 <li key={i.id} className="flex gap-3">
                   <div className="relative h-16 w-16 flex-none overflow-hidden rounded-lg bg-ink-700">
                     {i.image ? (
-                      <Image src={i.image} alt={i.name} fill sizes="64px" className="img-treatment object-cover" />
+                      <Image src={i.image} alt={i.name} fill sizes="64px" className="img-treatment object-contain" />
                     ) : (
                       <div className="flex h-full w-full items-center justify-center font-mono text-[8px] text-fg-faint">
                         —

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import clsx from "clsx";
 import { useProductModal } from "@/lib/productModal";
+import { ProductImage } from "./ProductImage";
 import { useCart, useCartDrawer } from "@/lib/cart";
 import { formatCents, effectiveCents, discountPct } from "@/lib/money";
 import { CATEGORIES } from "@/lib/site";
@@ -83,21 +84,14 @@ export function ProductModal() {
         </button>
 
         {/* gallery */}
-        <div className="flex flex-col gap-3 p-4 md:w-1/2 md:p-5">
-          <div className="relative aspect-square w-full overflow-hidden rounded-lg bg-ink-900">
-            {item.images.length ? (
-              <Image
-                src={item.images[active]}
-                alt={p.name}
-                fill
-                sizes="(max-width: 768px) 90vw, 400px"
-                className="img-treatment object-cover"
-              />
-            ) : (
-              <div className="flex h-full w-full items-center justify-center font-mono text-xs text-fg-faint">
-                Foto volgt
-              </div>
-            )}
+        <div className="flex flex-col gap-3 p-4 md:w-2/5 md:p-5">
+          <div className="relative">
+            <ProductImage
+              url={item.images[active] ?? null}
+              alt={p.name}
+              sizes="(max-width: 768px) 90vw, 320px"
+              className="aspect-[1/2] max-h-[45dvh] rounded-lg md:max-h-[58dvh]"
+            />
             {onSale && !soldOut && (
               <span className="absolute left-3 top-3 rounded-md bg-ice px-2 py-1 font-mono text-[9px] font-semibold uppercase text-on-ice">
                 {pct ? `−${pct}%` : "Sale"}
@@ -113,11 +107,11 @@ export function ProductModal() {
                   onClick={() => setActive(i)}
                   aria-label={`Foto ${i + 1}`}
                   className={clsx(
-                    "relative h-14 w-14 flex-none overflow-hidden rounded-md border",
+                    "relative h-14 w-14 flex-none overflow-hidden rounded-md border bg-ink-900",
                     i === active ? "border-ice" : "border-line",
                   )}
                 >
-                  <Image src={img} alt="" fill sizes="56px" className="img-treatment object-cover" />
+                  <Image src={img} alt="" fill sizes="56px" className="img-treatment object-contain" />
                 </button>
               ))}
             </div>
@@ -125,7 +119,7 @@ export function ProductModal() {
         </div>
 
         {/* details */}
-        <div className="flex flex-1 flex-col overflow-y-auto p-5 md:w-1/2 md:p-6">
+        <div className="flex flex-1 flex-col overflow-y-auto p-5 md:w-3/5 md:p-6">
           <h2 className="font-display text-xl font-semibold">{p.name}</h2>
           <div className="mt-2 flex items-baseline gap-2">
             <span className="font-mono text-lg font-semibold text-ice">{formatCents(eff)}</span>
