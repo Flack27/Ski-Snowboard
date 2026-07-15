@@ -224,6 +224,14 @@ export function BookingWidget({
             );
           })}
         </div>
+
+        <p className="mt-5 border-t border-line pt-4 text-xs leading-relaxed text-fg-dim">
+          Geen passende dag of tijd?{" "}
+          <a href="#contact" className="font-medium text-ice hover:text-ice-hover">
+            Stuur ons gerust een bericht
+          </a>{" "}
+          — dan zoeken we samen naar een moment dat wel uitkomt.
+        </p>
       </div>
 
       {/* slots + form */}
