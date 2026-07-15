@@ -64,7 +64,10 @@ export function BookingWidget({
 
   function isSelectable(d: Date) {
     if (d < earliest || d > latest) return false;
-    if (!config.openWeekdays.includes(WEEKDAY_CODES[d.getDay()])) return false;
+    const code = WEEKDAY_CODES[d.getDay()];
+    if (!config.openWeekdays.includes(code)) return false;
+    // Grey out days no slot runs on, rather than letting them open an empty list.
+    if (!config.slots.some((s) => !s.days.length || s.days.includes(code))) return false;
     if (config.blockedDates.includes(ymd(d))) return false;
     return true;
   }

@@ -18,6 +18,8 @@ const MAIL = (name, required = false) => ({ name, type: "email", required, optio
 const DATE = (name, required = false) => ({ name, type: "date", required, options: { min: "", max: "" } });
 const JSONF = (name) => ({ name, type: "json", required: false, options: { maxSize: 2000000 } });
 const SEL = (name, values, maxSelect = 1, required = false) => ({ name, type: "select", required, options: { maxSelect, values } });
+
+const WEEKDAYS = ["ma", "di", "wo", "do", "vr", "za", "zo"];
 const FILE = (name, maxSelect = 10) => ({
   name, type: "file", required: false,
   // "f" = fit inside the box, keeping the photo's ratio. Plain "WxH" would crop
@@ -58,13 +60,14 @@ const collections = [
   },
   {
     name: "time_slots", type: "base",
-    schema: [T("time", true), NUM("sort"), BOOL("active")],
+    // days: which weekdays this slot runs on. Empty = every open day.
+    schema: [T("time", true), SEL("days", WEEKDAYS, 7), NUM("sort"), BOOL("active")],
     listRule: "active = true", viewRule: "active = true", createRule: null, updateRule: null, deleteRule: null,
     indexes: ["CREATE UNIQUE INDEX `idx_time_slots_time` ON `time_slots` (`time`)"],
   },
   {
     name: "settings", type: "base",
-    schema: [SEL("open_weekdays", ["ma", "di", "wo", "do", "vr", "za", "zo"], 7), NUM("booking_horizon_days"), NUM("lead_time_hours")],
+    schema: [SEL("open_weekdays", WEEKDAYS, 7), NUM("booking_horizon_days"), NUM("lead_time_hours")],
     listRule: "", viewRule: "", createRule: null, updateRule: null, deleteRule: null, indexes: [],
   },
   {

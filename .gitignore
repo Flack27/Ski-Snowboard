@@ -10,6 +10,9 @@ web/next-env.d.ts
 # production
 web/build/
 
+# typescript incremental build cache
+*.tsbuildinfo
+
 # pocketbase runtime data (never commit the database or uploaded files)
 pocketbase/pb_data/
 
