@@ -155,7 +155,9 @@ export default async function HomePage() {
                 alt="Hidde Spapens, oprichter van Spapens Outdoor &amp; Snow"
                 fill
                 quality={90}
-                sizes="(max-width: 768px) 280px, 280px"
+                // Box is only 280px, but request ~2x so it stays retina-crisp on
+                // standard-density screens too (next/image picks the 640w render).
+                sizes="560px"
                 className="object-cover object-center"
               />
               <div
