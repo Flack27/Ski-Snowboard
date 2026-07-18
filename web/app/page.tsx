@@ -151,7 +151,7 @@ export default async function HomePage() {
           <div className="grid items-center gap-10 md:grid-cols-[minmax(0,0.85fr)_1fr] md:gap-14">
             <div className="relative aspect-[4/5] w-full overflow-hidden rounded-card border border-line bg-ink-900">
               <Image
-                src="/images/hidde.jpg"
+                src="/images/hidde.webp"
                 alt="Hidde Spapens, oprichter van Spapens Outdoor &amp; Snow"
                 fill
                 sizes="(max-width: 768px) 100vw, 40vw"
