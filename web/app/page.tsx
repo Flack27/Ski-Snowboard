@@ -146,15 +146,15 @@ export default async function HomePage() {
       </section>
 
       {/* ── OVER DE EIGENAAR ── */}
-      <section className="border-t border-line bg-ink-800">
+      <section className="border-y border-line bg-ink-800">
         <Container className="py-20 md:py-24">
-          <div className="grid items-center gap-10 md:grid-cols-[minmax(0,0.85fr)_1fr] md:gap-14">
-            <div className="relative aspect-[4/5] w-full overflow-hidden rounded-card border border-line bg-ink-900">
+          <div className="mx-auto grid max-w-4xl items-center gap-8 md:grid-cols-[280px_1fr] md:gap-12">
+            <div className="relative mx-auto aspect-[4/5] w-full max-w-[280px] overflow-hidden rounded-card border border-line bg-ink-900 md:mx-0 md:max-w-none">
               <Image
                 src="/images/hidde.webp"
                 alt="Hidde Spapens, oprichter van Spapens Outdoor &amp; Snow"
                 fill
-                sizes="(max-width: 768px) 100vw, 40vw"
+                sizes="(max-width: 768px) 280px, 280px"
                 className="object-cover object-center"
               />
               <div
@@ -198,7 +198,7 @@ export default async function HomePage() {
 
       {/* ── FAQ ── */}
       <section>
-        <Container className="pb-16 md:pb-20">
+        <Container className="py-16 md:py-20">
           <div className="mb-8">
             <div className="font-mono text-[11px] uppercase tracking-[0.16em] text-ice">
               Veelgestelde vragen
