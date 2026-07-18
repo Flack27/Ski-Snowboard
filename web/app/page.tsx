@@ -145,6 +145,57 @@ export default async function HomePage() {
         </Container>
       </section>
 
+      {/* ── OVER DE EIGENAAR ── */}
+      <section className="border-t border-line bg-ink-800">
+        <Container className="py-20 md:py-24">
+          <div className="grid items-center gap-10 md:grid-cols-[minmax(0,0.85fr)_1fr] md:gap-14">
+            <div className="relative aspect-[4/5] w-full overflow-hidden rounded-card border border-line bg-ink-900">
+              <Image
+                src="/images/hidde.jpg"
+                alt="Hidde Spapens, oprichter van Spapens Outdoor &amp; Snow"
+                fill
+                sizes="(max-width: 768px) 100vw, 40vw"
+                className="object-cover object-center"
+              />
+              <div
+                aria-hidden
+                className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3"
+                style={{ background: "linear-gradient(180deg,transparent,rgba(8,9,12,0.85))" }}
+              />
+              <div className="absolute bottom-4 left-5">
+                <div className="font-display text-lg font-semibold">Hidde Spapens</div>
+                <div className="font-mono text-[11px] uppercase tracking-[0.14em] text-ice">
+                  Oprichter
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <div className="font-mono text-[11px] uppercase tracking-[0.16em] text-ice">
+                Even voorstellen
+              </div>
+              <h2 className="mt-2 font-display text-2xl font-semibold md:text-3xl">
+                Over de eigenaar
+              </h2>
+              <div className="mt-5 space-y-4 text-sm leading-relaxed text-fg-muted md:text-base">
+                <p>
+                  Mijn naam is Hidde Spapens, oprichter van Spapens Outdoor &amp; Snow. Met een
+                  outdooropleiding, mijn Landes 1-skilerarendiploma en meer dan vier jaar ervaring in
+                  de wintersportbranche heb ik van mijn passie mijn werk gemaakt.
+                </p>
+                <p>
+                  Kwaliteit, vakmanschap en persoonlijke service staan bij ons centraal. Al het
+                  onderhoud wordt met de hand uitgevoerd, zodat iedere ski en snowboard de aandacht
+                  krijgt die het verdient. Met onze kennis en ervaring zorgen we ervoor dat iedere
+                  wintersporter met perfect onderhouden materiaal en een goed gevoel de piste op
+                  gaat.
+                </p>
+              </div>
+            </div>
+          </div>
+        </Container>
+      </section>
+
       {/* ── FAQ ── */}
       <section>
         <Container className="pb-16 md:pb-20">
