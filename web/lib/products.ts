@@ -1,5 +1,6 @@
 // Read-side product data from PocketBase. Server-only (uses the internal PB URL).
 // Reads are cached with the "products" tag so the PocketBase hook can revalidate on edit.
+import { sanitizeHtml } from "./html";
 
 const PB_INTERNAL = process.env.POCKETBASE_URL ?? "http://127.0.0.1:8090";
 const PB_PUBLIC = process.env.NEXT_PUBLIC_POCKETBASE_URL ?? "http://127.0.0.1:8090";
@@ -28,7 +29,9 @@ function mapProduct(r: any): Product {
     collectionId: r.collectionId,
     name: r.name ?? "",
     slug: r.slug ?? "",
-    description: r.description ?? "",
+    // Rendered as HTML in the product modal; sanitise to a safe formatting subset
+    // so pasted editor/ChatGPT markup (stray <div>s, attributes) can't leak in.
+    description: sanitizeHtml(r.description ?? ""),
     price: r.price ?? 0,
     sale_price: r.sale_price ? r.sale_price : null,
     stock: r.stock ?? 0,

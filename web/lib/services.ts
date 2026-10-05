@@ -1,4 +1,6 @@
 // Read-side service data from PocketBase (editable by the shop owner in the admin).
+import { htmlToText } from "./html";
+
 const PB_INTERNAL = process.env.POCKETBASE_URL ?? "http://127.0.0.1:8090";
 const PB_PUBLIC = process.env.NEXT_PUBLIC_POCKETBASE_URL ?? "http://127.0.0.1:8090";
 
@@ -26,7 +28,9 @@ function mapService(r: any): Service {
     name: r.name ?? "",
     short: r.short || r.name || "",
     blurb: r.blurb ?? "",
-    details: r.details ?? "",
+    // `details` is a rich-text field in the admin; render-side it's shown as plain
+    // text, so strip any pasted markup/entities to clean readable text.
+    details: htmlToText(r.details ?? ""),
     priceLabel: r.price_label ?? "",
     features: Array.isArray(r.features) ? r.features : [],
     popular: !!r.popular,

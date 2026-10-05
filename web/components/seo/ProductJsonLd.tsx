@@ -1,6 +1,7 @@
 import { SITE } from "@/lib/site";
 import { productImageUrl, type Product } from "@/lib/products";
 import { effectiveCents } from "@/lib/money";
+import { htmlToText } from "@/lib/html";
 
 // schema.org Product markup for each shop item (rich results in Google).
 export function ProductJsonLd({ products }: { products: Product[] }) {
@@ -10,7 +11,9 @@ export function ProductJsonLd({ products }: { products: Product[] }) {
       "@context": "https://schema.org",
       "@type": "Product",
       name: p.name,
-      ...(p.description ? { description: p.description.replace(/<[^>]*>/g, "").slice(0, 300) } : {}),
+      ...(p.description
+        ? { description: htmlToText(p.description).replace(/\n+/g, " ").slice(0, 300) }
+        : {}),
       ...(img ? { image: img } : {}),
       ...(p.brand ? { brand: { "@type": "Brand", name: p.brand } } : {}),
       offers: {

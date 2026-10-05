@@ -63,7 +63,9 @@ export default async function DienstenPage() {
                   {s.priceLabel}
                 </span>
               </div>
-              <p className="mt-2 text-sm leading-relaxed text-fg-dim">{s.details}</p>
+              <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-fg-dim">
+                {s.details}
+              </p>
               <ul className="mt-4 flex flex-col gap-2">
                 {s.features.map((f) => (
                   <li key={f} className="flex items-start gap-2 text-sm text-fg-muted">
