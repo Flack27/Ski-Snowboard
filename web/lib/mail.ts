@@ -1,6 +1,7 @@
 import { Resend } from "resend";
 import { SITE } from "./site";
 import { formatCents } from "./money";
+import { formatDateNl } from "./dates";
 import { getEmailTemplates } from "./emailTemplates";
 
 // Transactional email via Resend. If RESEND_API_KEY is unset, sends are skipped
@@ -48,8 +49,8 @@ export async function sendBookingNotification(b: BookingMail) {
     from: FROM,
     to: OWNER,
     replyTo: b.email,
-    subject: `Nieuwe afspraak — ${b.date} ${b.time_slot} (${b.service})`,
-    text: `Nieuwe drop-off afspraak (${b.ref})\n\nDienst: ${b.service}\nDatum: ${b.date} om ${b.time_slot}\nNaam: ${b.name}\nE-mail: ${b.email}\nTelefoon: ${b.phone || "-"}\nNotitie: ${b.note || "-"}`,
+    subject: `Nieuwe afspraak — ${formatDateNl(b.date)} ${b.time_slot} (${b.service})`,
+    text: `Nieuwe drop-off afspraak (${b.ref})\n\nDienst: ${b.service}\nDatum: ${formatDateNl(b.date)} om ${b.time_slot}\nNaam: ${b.name}\nE-mail: ${b.email}\nTelefoon: ${b.phone || "-"}\nNotitie: ${b.note || "-"}`,
   });
   return { sent: true as const };
 }
@@ -60,8 +61,8 @@ export async function sendBookingConfirmation(b: BookingMail) {
   await r.emails.send({
     from: FROM,
     to: b.email,
-    subject: `Je afspraak bij Spapens Outdoor & Snow — ${b.date} ${b.time_slot}`,
-    text: `Hoi ${b.name},\n\nBedankt voor je afspraak (${b.ref}). We verwachten je op ${b.date} om ${b.time_slot} voor: ${b.service}.\n\nAdres: ${SITE.address.street}, ${SITE.address.postalCode} ${SITE.address.city}\nVragen? Bel ${SITE.phoneDisplay}.\n\nTot dan!\nSpapens Outdoor & Snow`,
+    subject: `Je afspraak bij Spapens Outdoor & Snow — ${formatDateNl(b.date)} ${b.time_slot}`,
+    text: `Hoi ${b.name},\n\nBedankt voor je afspraak (${b.ref}). We verwachten je op ${formatDateNl(b.date)} om ${b.time_slot} voor: ${b.service}.\n\nAdres: ${SITE.address.street}, ${SITE.address.postalCode} ${SITE.address.city}\nVragen? Bel ${SITE.phoneDisplay}.\n\nTot dan!\nSpapens Outdoor & Snow`,
   });
   return { sent: true as const };
 }

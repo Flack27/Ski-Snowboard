@@ -1,6 +1,66 @@
 import { createAdminClient } from "./pocketbase";
+import type { Service } from "./services";
 
 const PB = process.env.POCKETBASE_URL ?? "http://127.0.0.1:8090";
+
+type ServiceRef = Pick<Service, "slug" | "name">;
+
+export type BookingRequest = {
+  name: string;
+  email: string;
+  phone: string;
+  note: string;
+  date: string; // 'YYYY-MM-DD'
+  time_slot: string;
+  service: ServiceRef;
+};
+
+/**
+ * Validates a booking POST body against the live services list (services are
+ * editable in the admin, so there is no fixed list to check against). Each failure
+ * has its own message, so an unknown service can't pass itself off as
+ * "fill in all fields".
+ */
+export function parseBookingRequest(
+  body: Record<string, unknown>,
+  services: ServiceRef[],
+): { ok: true; value: BookingRequest } | { ok: false; error: string } {
+  const field = (key: string) => String(body[key] ?? "").trim();
+  const name = field("name");
+  const email = field("email");
+  const date = field("date");
+  const time_slot = field("time_slot");
+
+  if (!name || !email || !date || !time_slot) {
+    return { ok: false, error: "Vul alle verplichte velden in." };
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return { ok: false, error: "Vul een geldig e-mailadres in." };
+  }
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    return { ok: false, error: "Ongeldige datum." };
+  }
+  const service = services.find((s) => s.slug === field("service"));
+  if (!service) {
+    return { ok: false, error: "Kies een geldige dienst." };
+  }
+  return {
+    ok: true,
+    value: { name, email, phone: field("phone"), note: field("note"), date, time_slot, service },
+  };
+}
+
+/**
+ * True only when PocketBase rejected a booking because that (date, time_slot) is
+ * already taken (the unique index). Anything else is a real error, not a race.
+ */
+export function isDuplicateSlotError(e: unknown): boolean {
+  const data = (e as { response?: { data?: Record<string, { code?: string }> } })?.response?.data;
+  return (
+    data?.date?.code === "validation_not_unique" ||
+    data?.time_slot?.code === "validation_not_unique"
+  );
+}
 
 /** A bookable time. `days` limits it to certain weekdays; empty = every open day. */
 export type Slot = { time: string; days: string[] };

@@ -1,5 +1,6 @@
 // Read-side service data from PocketBase (editable by the shop owner in the admin).
 import { htmlToText } from "./html";
+import { slugify } from "./slug";
 
 const PB_INTERNAL = process.env.POCKETBASE_URL ?? "http://127.0.0.1:8090";
 const PB_PUBLIC = process.env.NEXT_PUBLIC_POCKETBASE_URL ?? "http://127.0.0.1:8090";
@@ -17,6 +18,7 @@ export type Service = {
   popular: boolean;
   sort: number;
   image: string;
+  updated: string; // PocketBase timestamp, used for sitemap lastmod
 };
 
 // eslint-disable-next-line
@@ -24,7 +26,7 @@ function mapService(r: any): Service {
   return {
     id: r.id,
     collectionId: r.collectionId,
-    slug: r.slug ?? "",
+    slug: slugify(r.slug || r.name || "") || r.id,
     name: r.name ?? "",
     short: r.short || r.name || "",
     blurb: r.blurb ?? "",
@@ -36,6 +38,7 @@ function mapService(r: any): Service {
     popular: !!r.popular,
     sort: r.sort ?? 0,
     image: r.image ?? "",
+    updated: r.updated ?? "",
   };
 }
 

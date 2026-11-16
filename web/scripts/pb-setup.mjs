@@ -50,7 +50,7 @@ const collections = [
   {
     name: "bookings", type: "base",
     schema: [T("ref", true), T("name", true), MAIL("email", true), T("phone"),
-      SEL("service", ["waxen", "slijpen", "waxen-slijpen", "onderhoud"]), DATE("date", true), T("time_slot"), T("note"),
+      T("service"), DATE("date", true), T("time_slot"), T("note"),
       SEL("status", ["nieuw", "bevestigd", "klaar", "geannuleerd"])],
     listRule: null, viewRule: null, createRule: null, updateRule: null, deleteRule: null,
     indexes: [

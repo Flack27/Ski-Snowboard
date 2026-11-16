@@ -1,30 +1,24 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/pocketbase";
-import { getAvailableSlots } from "@/lib/booking";
+import { getAvailableSlots, isDuplicateSlotError, parseBookingRequest } from "@/lib/booking";
+import { getServices } from "@/lib/services";
 import { sendBookingNotification, sendBookingConfirmation } from "@/lib/mail";
 import { verifyTurnstile } from "@/lib/turnstile";
 
 export const runtime = "nodejs";
 
-const VALID_SERVICES = ["waxen", "slijpen", "waxen-slijpen", "onderhoud"];
+const SLOT_TAKEN = "Dit tijdslot is net bezet. Kies een ander.";
 
 export async function POST(req: Request) {
   const b = await req.json().catch(() => null);
   if (!b) return NextResponse.json({ error: "Ongeldig verzoek." }, { status: 400 });
   if (b.website) return NextResponse.json({ ok: true }); // honeypot → fake success
 
-  const name = String(b.name || "").trim();
-  const email = String(b.email || "").trim();
-  const service = String(b.service || "");
-  const date = String(b.date || "");
-  const time_slot = String(b.time_slot || "");
+  // Services are editable in the admin, so validate against the live list.
+  const parsed = parseBookingRequest(b, await getServices());
+  if (!parsed.ok) return NextResponse.json({ error: parsed.error }, { status: 400 });
+  const { name, email, phone, note, date, time_slot, service } = parsed.value;
 
-  if (!name || !email || !date || !time_slot || !VALID_SERVICES.includes(service)) {
-    return NextResponse.json({ error: "Vul alle verplichte velden in." }, { status: 400 });
-  }
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-    return NextResponse.json({ error: "Ongeldige datum." }, { status: 400 });
-  }
   if (!(await verifyTurnstile(b.turnstileToken))) {
     return NextResponse.json({ error: "Verificatie mislukt. Probeer opnieuw." }, { status: 400 });
   }
@@ -32,20 +26,12 @@ export async function POST(req: Request) {
   // Re-check the slot is still free (defends against races).
   const available = await getAvailableSlots(date);
   if (!available.includes(time_slot)) {
-    return NextResponse.json({ error: "Dit tijdslot is net bezet. Kies een ander." }, { status: 409 });
+    return NextResponse.json({ error: SLOT_TAKEN }, { status: 409 });
   }
 
   const ref = `AFS-${Date.now().toString(36).toUpperCase()}`;
-  const mail = {
-    ref,
-    name,
-    email,
-    phone: String(b.phone || ""),
-    service,
-    date,
-    time_slot,
-    note: String(b.note || ""),
-  };
+  // The service is stored and mailed by its name — that's what the owner reads.
+  const mail = { ref, name, email, phone, service: service.name, date, time_slot, note };
 
   try {
     const pb = await createAdminClient();
@@ -55,9 +41,14 @@ export async function POST(req: Request) {
       status: "nieuw",
     });
   } catch (e) {
+    if (isDuplicateSlotError(e)) {
+      return NextResponse.json({ error: SLOT_TAKEN }, { status: 409 });
+    }
     console.error("booking create failed", e);
-    // Unique (date, time_slot) index → someone booked it first.
-    return NextResponse.json({ error: "Dit tijdslot is net bezet. Kies een ander." }, { status: 409 });
+    return NextResponse.json(
+      { error: "Er ging iets mis bij het opslaan. Probeer het opnieuw of bel ons even." },
+      { status: 500 },
+    );
   }
 
   await Promise.allSettled([sendBookingNotification(mail), sendBookingConfirmation(mail)]);
