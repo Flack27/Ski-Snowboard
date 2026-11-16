@@ -4,6 +4,7 @@
 //
 // Markup:
 //   data-reveal[="rise|fade|pop|settle|photo"]   the element enters once it scrolls into view
+//                                                (settle/photo wait for their picture to load)
 //   data-stagger[="rise|fade|pop"]               each direct child enters on its own
 //   data-reveal-delay="120"               extra delay in ms
 // Elements that come into view together enter one after another, in reading order.
@@ -18,14 +19,24 @@ export function initReveal() {
   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
   const EASE = "cubic-bezier(0.22, 1, 0.36, 1)";
-  const KINDS: Record<string, { from: Keyframe; ms: number; easing?: string }> = {
+  const SOFT = "cubic-bezier(0.33, 1, 0.68, 1)";
+  type Kind = {
+    from: Keyframe;
+    ms: number;
+    easing?: string;
+    hasPhoto?: boolean; // wait for its picture to load, so a frame never enters empty
+    zoomPhoto?: boolean; // the picture inside also eases back from a slight zoom
+  };
+  // Every move starts at once and decelerates (ease-out): a curve that starts slowly reads
+  // as lag. Only opacity, translate and scale, which the GPU animates smoothly.
+  const KINDS: Record<string, Kind> = {
     rise: { from: { opacity: 0, translate: "0 28px" }, ms: 900 },
     fade: { from: { opacity: 0 }, ms: 800 },
     pop: { from: { opacity: 0, scale: "0.96" }, ms: 700 },
     // A photo inside a card (which clips it) fades in while easing back from a slight zoom.
-    settle: { from: { opacity: 0, scale: "1.06" }, ms: 1300, easing: "cubic-bezier(0.33, 1, 0.68, 1)" },
-    // Opens from the bottom edge like a shutter while the photo inside settles.
-    photo: { from: { clipPath: "inset(0 0 100% 0)" }, ms: 1100, easing: "cubic-bezier(0.76, 0, 0.24, 1)" },
+    settle: { from: { opacity: 0, scale: "1.06" }, ms: 1300, easing: SOFT, hasPhoto: true },
+    // A framed photo rises in with the text beside it while the picture settles inside.
+    photo: { from: { opacity: 0, translate: "0 24px" }, ms: 900, hasPhoto: true, zoomPhoto: true },
   };
   const STEP = 80; // ms between elements that enter together
   const MAX_STEPS = 6;
@@ -34,7 +45,17 @@ export function initReveal() {
   const holds = new WeakMap<Element, Animation>();
   const done = new WeakSet<Element>();
 
-  function kindOf(el: Element) {
+  // Resolves once the element's pictures are decoded, or after a short wait at most.
+  function photosReady(el: Element): Promise<unknown> {
+    const loading = Array.from(el.querySelectorAll("img")).filter((img) => !img.complete);
+    if (!loading.length) return Promise.resolve();
+    return Promise.race([
+      Promise.all(loading.map((img) => img.decode().catch(() => undefined))),
+      new Promise((resolve) => setTimeout(resolve, 700)),
+    ]);
+  }
+
+  function kindOf(el: Element): Kind {
     const name = el.hasAttribute("data-reveal")
       ? el.getAttribute("data-reveal")
       : el.parentElement?.getAttribute("data-stagger");
@@ -70,24 +91,30 @@ export function initReveal() {
       done.add(el);
       const kind = kindOf(el);
       const delay = (start.get(el) || 0) + (Number(el.getAttribute("data-reveal-delay")) || 0);
-      el.animate([kind.from, {}], {
-        duration: kind.ms,
-        delay,
-        easing: kind.easing || EASE,
-        fill: "backwards",
-      });
-      if (kind === KINDS.photo) {
-        el.querySelectorAll("img").forEach((img) =>
-          img.animate([{ scale: "1.12" }, { scale: "1" }], {
-            duration: 1600,
-            delay,
-            easing: "cubic-bezier(0.33, 1, 0.68, 1)",
-            fill: "backwards",
-          }),
-        );
-      }
-      holds.get(el)?.cancel();
-      holds.delete(el);
+      const play = (wait: number) => {
+        el.animate([kind.from, {}], {
+          duration: kind.ms,
+          delay: wait,
+          easing: kind.easing || EASE,
+          fill: "backwards",
+        });
+        if (kind.zoomPhoto) {
+          el.querySelectorAll("img").forEach((img) =>
+            img.animate([{ scale: "1.08" }, { scale: "1" }], {
+              duration: 1400,
+              delay: wait,
+              easing: SOFT,
+              fill: "backwards",
+            }),
+          );
+        }
+        holds.get(el)?.cancel();
+        holds.delete(el);
+      };
+      if (!kind.hasPhoto) return play(delay);
+      // Time spent waiting for the picture counts towards its place in the sequence.
+      const asked = performance.now();
+      photosReady(el).then(() => play(Math.max(0, delay - (performance.now() - asked))));
     });
   }
 
