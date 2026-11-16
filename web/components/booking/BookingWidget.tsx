@@ -3,6 +3,10 @@
 import { useEffect, useMemo, useState } from "react";
 import clsx from "clsx";
 import type { BookingConfig } from "@/lib/booking";
+import { formatDateNl } from "@/lib/dates";
+import { Icon } from "@/components/ui/Icon";
+import { Button } from "@/components/ui/Button";
+import { inputCls } from "@/components/ui/field";
 
 const WEEKDAY_CODES = ["zo", "ma", "di", "wo", "do", "vr", "za"]; // JS getDay() order
 const DOW_LABELS = ["ma", "di", "wo", "do", "vr", "za", "zo"]; // Monday-first grid
@@ -10,10 +14,7 @@ const MONTHS = [
   "januari", "februari", "maart", "april", "mei", "juni",
   "juli", "augustus", "september", "oktober", "november", "december",
 ];
-type ServiceOption = { slug: string; label: string };
-
-const inputCls =
-  "w-full rounded-ctl border border-line bg-ink-800 px-3 py-2.5 text-sm text-fg outline-none placeholder:text-fg-faint focus:border-ice focus:ring-2 focus:ring-ice/20";
+type ServiceOption = { slug: string; label: string; popular: boolean };
 
 function ymd(d: Date) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
@@ -27,7 +28,7 @@ export function BookingWidget({
   serviceOptions: ServiceOption[];
 }) {
   const [service, setService] = useState(
-    () => serviceOptions.find((s) => s.slug === "waxen-slijpen")?.slug ?? serviceOptions[0]?.slug ?? "",
+    () => (serviceOptions.find((s) => s.popular) ?? serviceOptions[0])?.slug ?? "",
   );
   const today = useMemo(() => {
     const d = new Date();
@@ -131,7 +132,7 @@ export function BookingWidget({
 
   if (!mounted) {
     return (
-      <div className="rounded-card border border-line bg-ink-700 p-8 text-sm text-fg-dim">
+      <div className="rounded-card border border-line bg-ink-700 p-8 text-base text-fg-dim">
         Kalender laden…
       </div>
     );
@@ -139,28 +140,31 @@ export function BookingWidget({
 
   if (done) {
     return (
-      <div className="rounded-card border border-ice/30 bg-ice/5 p-8 text-center">
-        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-ice/10 text-xl text-ice">
+      <div className="animate-rise rounded-card border border-ice/30 bg-ice/5 p-8 text-center">
+        <div className="mx-auto flex h-12 w-12 animate-pop items-center justify-center rounded-full bg-ice/10 text-xl text-ice [animation-delay:200ms]">
           ✓
         </div>
         <h3 className="mt-4 font-display text-xl font-semibold">Afspraak aangevraagd!</h3>
-        <p className="mt-2 text-sm text-fg-muted">
+        <p className="mt-2 text-base text-fg-muted">
           Referentie <span className="font-mono text-fg">{done.ref}</span>. Je krijgt een
-          bevestiging per e-mail. Tot {done.date} om {done.slot}!
+          bevestiging per e-mail. Tot {formatDateNl(done.date)} om {done.slot}!
         </p>
       </div>
     );
   }
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[minmax(280px,340px)_1fr]">
+    <div data-stagger className="grid gap-6 lg:grid-cols-[minmax(280px,360px)_1fr]">
       {/* service + calendar */}
       <div className="rounded-card border border-line bg-ink-700 p-5">
-        <label className="mb-2 block text-xs text-fg-muted">Dienst</label>
+        <label htmlFor="booking-service" className="mb-2 block text-sm text-fg-muted">
+          Dienst
+        </label>
         <select
+          id="booking-service"
           value={service}
           onChange={(e) => setService(e.target.value)}
-          className="mb-5 w-full rounded-ctl border border-line bg-ink-800 px-3 py-2.5 text-sm text-fg outline-none focus:border-ice"
+          className={clsx(inputCls, "mb-5")}
         >
           {serviceOptions.map((s) => (
             <option key={s.slug} value={s.slug}>
@@ -174,7 +178,7 @@ export function BookingWidget({
             type="button"
             disabled={!canPrev}
             onClick={() => setView(new Date(view.getFullYear(), view.getMonth() - 1, 1))}
-            className="px-2 text-ice disabled:opacity-30"
+            className="press flex h-8 w-8 items-center justify-center rounded-md text-lg text-ice hover:bg-ice/10 disabled:opacity-30"
             aria-label="Vorige maand"
           >
             ‹
@@ -186,16 +190,17 @@ export function BookingWidget({
             type="button"
             disabled={!canNext}
             onClick={() => setView(new Date(view.getFullYear(), view.getMonth() + 1, 1))}
-            className="px-2 text-ice disabled:opacity-30"
+            className="press flex h-8 w-8 items-center justify-center rounded-md text-lg text-ice hover:bg-ice/10 disabled:opacity-30"
             aria-label="Volgende maand"
           >
             ›
           </button>
         </div>
 
-        <div className="grid grid-cols-7 gap-1.5">
+        {/* Keyed on the month, so paging fades the new month in. */}
+        <div key={`${view.getFullYear()}-${view.getMonth()}`} className="grid animate-fade grid-cols-7 gap-1.5">
           {DOW_LABELS.map((d) => (
-            <div key={d} className="text-center font-mono text-[9px] uppercase text-fg-faint">
+            <div key={d} className="text-center font-mono text-[11px] uppercase text-fg-faint">
               {d}
             </div>
           ))}
@@ -211,7 +216,7 @@ export function BookingWidget({
                 disabled={!ok}
                 onClick={() => pickDate(d)}
                 className={clsx(
-                  "flex aspect-square items-center justify-center rounded-lg font-mono text-xs transition-colors",
+                  "press flex aspect-square items-center justify-center rounded-lg font-mono text-sm",
                   sel
                     ? "bg-ice text-on-ice"
                     : ok
@@ -225,9 +230,9 @@ export function BookingWidget({
           })}
         </div>
 
-        <p className="mt-5 border-t border-line pt-4 text-xs leading-relaxed text-fg-dim">
+        <p className="mt-5 border-t border-line pt-4 text-sm leading-relaxed text-fg-dim">
           Geen passende dag of tijd?{" "}
-          <a href="#contact" className="font-medium text-ice hover:text-ice-hover">
+          <a href="#contact" className="font-medium text-ice transition-colors hover:text-ice-hover">
             Stuur ons gerust een bericht
           </a>{" "}
           — dan zoeken we samen naar een moment dat wel uitkomt.
@@ -237,23 +242,49 @@ export function BookingWidget({
       {/* slots + form */}
       <div className="rounded-card border border-line bg-ink-700 p-5">
         {!selectedDate ? (
-          <p className="text-sm text-fg-dim">Kies eerst een dag in de kalender.</p>
+          <div className="flex h-full flex-col justify-center gap-6 py-2 md:px-4">
+            <div>
+              <p className="font-display text-lg font-semibold">Kies een dag in de kalender</p>
+              <p className="mt-1 text-base text-fg-dim">
+                Daarna zie je de vrije tijden en vul je alleen je naam en e-mailadres in.
+              </p>
+            </div>
+            <ul data-stagger="fade" className="flex flex-col gap-3 text-[15px] text-fg-muted">
+              <li className="flex gap-3">
+                <Icon name="pin" className="text-ice" />
+                Je brengt je ski&apos;s of board langs op het moment dat je kiest.
+              </li>
+              <li className="flex gap-3">
+                <Icon name="clock" className="text-ice" />
+                We tunen alles met de hand, meestal binnen 2 tot 3 werkdagen.
+              </li>
+              <li className="flex gap-3">
+                <Icon name="mail" className="text-ice" />
+                Je krijgt bericht zodra je materiaal klaarstaat om op te halen.
+              </li>
+            </ul>
+          </div>
         ) : (
           <>
-            <div className="mb-3 text-sm text-fg-muted">
-              Beschikbare tijden · <span className="text-fg">{selectedDate}</span>
+            <div key={`label-${selectedDate}`} className="mb-3 animate-fade text-base text-fg-muted">
+              Beschikbare tijden op <span className="text-fg">{formatDateNl(selectedDate)}</span>
             </div>
             {loadingSlots ? (
-              <p className="text-sm text-fg-dim">Laden…</p>
+              <p className="text-base text-fg-dim">Laden…</p>
             ) : slots && slots.length ? (
-              <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-3">
+              // A new grid per day, so each day's times pop in one after another.
+              <div
+                key={`slots-${selectedDate}`}
+                data-stagger="pop"
+                className="grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-3"
+              >
                 {slots.map((t) => (
                   <button
                     type="button"
                     key={t}
                     onClick={() => setSelectedSlot(t)}
                     className={clsx(
-                      "rounded-ctl border py-2.5 font-mono text-xs transition-colors",
+                      "press rounded-ctl border py-2.5 font-mono text-sm",
                       selectedSlot === t
                         ? "border-ice bg-ice text-on-ice"
                         : "border-ice/25 bg-ice/5 text-ice hover:bg-ice/10",
@@ -264,11 +295,14 @@ export function BookingWidget({
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-fg-dim">Geen vrije tijden op deze dag. Kies een andere dag.</p>
+              <p className="text-base text-fg-dim">Geen vrije tijden op deze dag. Kies een andere dag.</p>
             )}
 
             {selectedSlot && (
-              <form onSubmit={submit} className="mt-5 flex flex-col gap-3 border-t border-line pt-5">
+              <form
+                onSubmit={submit}
+                className="mt-5 flex animate-rise flex-col gap-3 border-t border-line pt-5"
+              >
                 <input
                   required
                   placeholder="Naam *"
@@ -306,13 +340,9 @@ export function BookingWidget({
                   className="hidden"
                 />
                 {error && <p className="text-sm text-red-400">{error}</p>}
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="mt-1 rounded-ctl bg-ice py-3 font-display text-sm font-semibold text-on-ice transition-colors hover:bg-ice-hover disabled:opacity-60"
-                >
+                <Button type="submit" disabled={submitting} fullWidth className="mt-1">
                   {submitting ? "Bezig…" : "Bevestig afspraak"}
-                </button>
+                </Button>
               </form>
             )}
           </>

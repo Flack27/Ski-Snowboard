@@ -28,7 +28,7 @@ Fill in `.env` (this file is git-ignored — never commit it):
 | `REVALIDATE_SECRET` | any long random string (`openssl rand -hex 24`) |
 | `MOLLIE_API_KEY` | Mollie **test_…** first, then **live_…** — *when you have the business account* |
 | `RESEND_API_KEY` / `MAIL_FROM` / `MAIL_OWNER` | *when Resend is set up (step 5)* |
-| `NEXT_PUBLIC_GOOGLE_PLACE_ID` / `GOOGLE_MAPS_API_KEY` | already known — keep the ones from dev |
+| `GOOGLE_MAPS_API_KEY` | already known — keep the one from dev (the Place ID lives in `web/lib/site.ts`) |
 | `NEXT_PUBLIC_TURNSTILE_SITE_KEY` / `TURNSTILE_SECRET_KEY` | optional (step 6) |
 
 ## 2. Bring it up

@@ -1,4 +1,5 @@
 import { FAQS } from "@/lib/site";
+import { JsonLd } from "./JsonLd";
 
 // schema.org FAQPage for the home-page FAQ — helps Google show rich results.
 export function FaqJsonLd() {
@@ -11,11 +12,5 @@ export function FaqJsonLd() {
       acceptedAnswer: { "@type": "Answer", text: f.a },
     })),
   };
-  return (
-    <script
-      type="application/ld+json"
-      // eslint-disable-next-line react/no-danger
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
-    />
-  );
+  return <JsonLd data={data} />;
 }

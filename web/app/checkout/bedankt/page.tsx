@@ -21,13 +21,13 @@ export default function BedanktPage() {
 
   return (
     <Container className="flex min-h-[60vh] flex-col items-center justify-center py-20 text-center">
-      <div className="flex h-14 w-14 items-center justify-center rounded-full bg-ice/10 text-2xl text-ice">
+      <div className="flex h-14 w-14 animate-pop items-center justify-center rounded-full bg-ice/10 text-2xl text-ice [animation-delay:150ms]">
         ✓
       </div>
-      <h1 className="mt-5 font-display text-3xl font-semibold">
+      <h1 className="mt-5 animate-rise font-display text-3xl font-semibold [animation-delay:250ms]">
         {reserved ? "Je reservering is geplaatst!" : "Bedankt voor je bestelling!"}
       </h1>
-      <p className="mt-3 max-w-md text-sm leading-relaxed text-fg-muted">
+      <p className="mt-3 max-w-md animate-rise text-base leading-relaxed text-fg-muted [animation-delay:330ms]">
         {reserved ? (
           <>
             We houden je bestelling
@@ -54,7 +54,7 @@ export default function BedanktPage() {
           </>
         )}
       </p>
-      <div className="mt-8 flex flex-wrap justify-center gap-3">
+      <div className="mt-8 flex animate-rise flex-wrap justify-center gap-3 [animation-delay:410ms]">
         <Button href="/shop" variant="secondary">
           Verder winkelen
         </Button>

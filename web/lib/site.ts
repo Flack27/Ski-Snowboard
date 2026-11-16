@@ -1,11 +1,9 @@
-// Central business facts (NAP), navigation, and the static services list.
-// Products/orders/bookings live in PocketBase; services are fixed content and live here.
+// Central business facts (NAP), navigation, shop categories and FAQs.
+// Services, products, orders and bookings live in PocketBase (editable in the admin).
 
 export const SITE = {
   name: "Spapens Outdoor & Snow",
-  shortName: "SOS",
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://sosoutdoor.nl",
-  tagline: "Waxed for speed, tuned for thrill.",
   description:
     "Met de hand waxen, slijpen en onderhoud van ski's en snowboards in Hilvarenbeek. Plus een wisselende voorraad tweedehands ski's, boards en gear.",
   appointmentNote:
@@ -27,11 +25,16 @@ export const SITE = {
     whatsapp: "https://wa.me/31657284765",
   },
   google: {
-    // Public — used to build the "read reviews" link and to fetch the live rating.
-    placeId: process.env.NEXT_PUBLIC_GOOGLE_PLACE_ID ?? "",
-    reviewsUrl: process.env.NEXT_PUBLIC_GOOGLE_PLACE_ID
-      ? `https://www.google.com/maps/place/?q=place_id:${process.env.NEXT_PUBLIC_GOOGLE_PLACE_ID}`
-      : "",
+    // The listing's public Place ID: fetches the live rating and reviews (lib/googlePlace.ts)
+    // and builds the reviews link. A fixed fact like the address, not an env var: as a
+    // NEXT_PUBLIC_ build variable it never reached the Docker build, so in production the
+    // reviews link and the live rating were silently off.
+    placeId: "ChIJ_0dI4dnBxkcRLhCHmnojlTY",
+    // Fallback reviews link, for when the API (which returns its own) can't be reached.
+    reviewsUrl: "https://www.google.com/maps/place/?q=place_id:ChIJ_0dI4dnBxkcRLhCHmnojlTY",
+    // The Google Maps business listing itself (not just the address pin).
+    mapsUrl:
+      "https://www.google.com/maps/place/Spapens+ski+%26+snowboard+service/@51.4884215,5.1347909,17z/data=!4m15!1m8!3m7!1s0x47c6c0ab698f55f5:0xc7918884f7a35631!2sPetershemstraat+16,+5081+ZB+Hilvarenbeek!3b1!8m2!3d51.4884215!4d5.1347909!16s%2Fg%2F11c1flvtdn!3m5!1s0x47c6c1d9e14847ff:0x3695237a9a87102e!8m2!3d51.4884215!4d5.1347909!16s%2Fg%2F11wgmjc_f0",
     // Real current Google values — also the fallback if the live API call ever fails.
     rating: 5.0,
     reviewCount: 5,
@@ -44,67 +47,6 @@ export const NAV = [
   { href: "/shop", label: "Shop" },
   { href: "/contact", label: "Contact" },
 ] as const;
-
-export type Service = {
-  slug: string;
-  name: string;
-  short: string;
-  blurb: string;
-  details: string;
-  priceLabel: string;
-  image: string;
-  popular?: boolean;
-  features: string[];
-};
-
-// Placeholder Dutch copy — replace blurbs/features with final wording when ready.
-export const SERVICES: Service[] = [
-  {
-    slug: "waxen",
-    name: "Waxen van ski's & snowboard",
-    short: "Waxen",
-    blurb: "Schoon, heet gewaxt en uitgeborsteld voor maximale glij op de piste.",
-    details:
-      "We reinigen de belaag grondig, brengen warme wax aan die intrekt in de basis en borstelen uit voor maximale glij. Regelmatig waxen beschermt je belaag en houdt je ski's of board sneller.",
-    priceLabel: "€ 17,50",
-    image: "/images/waxen.png",
-    features: ["Reinigen van de belaag", "Warm inwaxen", "Uitborstelen & polijsten"],
-  },
-  {
-    slug: "slijpen",
-    name: "Slijpen van ski's & snowboard",
-    short: "Slijpen",
-    blurb: "Scherpe, gelijkmatige kanten voor grip en controle in de afdaling.",
-    details:
-      "Botte of beschadigde kanten kosten je grip en controle. We slijpen de kanten op de juiste hoek, verwijderen bramen en controleren de belaag op beschadigingen. Prijs op aanvraag, afhankelijk van de staat.",
-    priceLabel: "Op aanvraag",
-    image: "/images/slijpen.png",
-    features: ["Kanten op hoek slijpen", "Bramen verwijderen", "Controle op beschadigingen"],
-  },
-  {
-    slug: "waxen-slijpen",
-    name: "Waxen & slijpen combi",
-    short: "Waxen + slijpen",
-    blurb: "De volledige beurt: kanten scherp én belaag snel. Onze meest gekozen beurt.",
-    details:
-      "De complete beurt in één keer: eerst de kanten scherp slijpen, dan warm inwaxen en uitborstelen. Ideaal aan het begin van het seizoen of voor je op wintersport gaat. Onze meest gekozen beurt.",
-    priceLabel: "€ 27,50",
-    image: "/images/combi.png",
-    popular: true,
-    features: ["Slijpen van de kanten", "Warm inwaxen", "Uitborstelen & polijsten"],
-  },
-  {
-    slug: "onderhoud",
-    name: "Onderhoudsbeurt compleet",
-    short: "Onderhoud",
-    blurb: "Reinigen, waxen, slijpen én kleine reparaties aan de onderkant.",
-    details:
-      "Een complete opknapbeurt: reinigen, slijpen, waxen én kleine reparaties aan de belaag. We bekijken je materiaal en adviseren wat nodig is. Prijs vanaf € 35, afhankelijk van het werk.",
-    priceLabel: "Vanaf € 35",
-    image: "/images/onderhoud.png",
-    features: ["Volledige reiniging", "Waxen & slijpen", "Kleine belaagreparaties"],
-  },
-];
 
 export const CATEGORIES = [
   { value: "ski", label: "Ski's" },

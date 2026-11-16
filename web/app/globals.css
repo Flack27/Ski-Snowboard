@@ -27,7 +27,7 @@
   --color-fg: #eef3f7;
   --color-fg-muted: #a9b5c1;
   --color-fg-dim: #8b98a5;
-  --color-fg-faint: #657483;
+  --color-fg-faint: #748392; /* lightest step that still passes WCAG AA (4.5:1) on cards */
 
   /* type */
   --font-display: var(--font-space-grotesk), "Space Grotesk", sans-serif;
@@ -38,8 +38,63 @@
   --radius-card: 14px;
   --radius-ctl: 10px;
 
-  /* extra breakpoint at the frame width — used to edge-align the nav/footer once gutters appear */
-  --breakpoint-3xl: 90rem; /* 1440px */
+  /* motion — one set of curves for the whole site (scroll reveals: lib/reveal.ts) */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1); /* entrances, feedback */
+  --ease-soft: cubic-bezier(0.33, 1, 0.68, 1); /* long, quiet moves on photos */
+  --default-transition-duration: 180ms;
+  --default-transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* Entrances on page load (CSS only, so they never wait for JavaScript). Each starts
+     from an offset and settles on the element's own styles. */
+  --animate-rise: rise 800ms var(--ease-out) both;
+  --animate-line-up: line-up 950ms var(--ease-out) both;
+  --animate-settle: settle 2400ms var(--ease-soft) both;
+  --animate-pop: pop 360ms var(--ease-out) both;
+  --animate-fade: fade 260ms var(--ease-out) both;
+  --animate-drop: drop 240ms var(--ease-out) both;
+  --animate-dialog: dialog 300ms var(--ease-out) both;
+
+  @keyframes rise {
+    from {
+      opacity: 0;
+      translate: 0 18px;
+    }
+  }
+  @keyframes line-up {
+    from {
+      translate: 0 110%;
+    }
+  }
+  @keyframes settle {
+    from {
+      opacity: 0;
+      scale: 1.08;
+    }
+  }
+  @keyframes pop {
+    from {
+      opacity: 0;
+      scale: 0.6;
+    }
+  }
+  @keyframes fade {
+    from {
+      opacity: 0;
+    }
+  }
+  @keyframes drop {
+    from {
+      opacity: 0;
+      translate: 0 -6px;
+    }
+  }
+  @keyframes dialog {
+    from {
+      opacity: 0;
+      scale: 0.97;
+      translate: 0 8px;
+    }
+  }
 }
 
 @layer base {
@@ -77,12 +132,74 @@
   filter: contrast(1.08) saturate(0.8) brightness(0.82);
 }
 
-@keyframes glowpulse {
-  0%,
-  100% {
-    opacity: 0.55;
+/* Feedback on small controls: colours ease, and the control gives a little when pressed.
+   (Replaces transition-colors; large cards use their own, smaller press.) */
+@utility press {
+  transition-property: color, background-color, border-color, box-shadow, scale;
+  transition-duration: var(--default-transition-duration);
+  transition-timing-function: var(--default-transition-timing-function);
+  &:active:not(:disabled) {
+    scale: 0.97;
   }
-  50% {
-    opacity: 1;
+}
+
+/* Arrow in a text link nudges forward when its link (.group) is hovered. */
+@utility link-arrow {
+  display: inline-block;
+  transition: translate 220ms var(--ease-out);
+  @media (hover: hover) {
+    :where(.group):hover & {
+      translate: 3px 0;
+    }
+  }
+}
+
+/* A photo inside a hovered card link (.group) moves in a touch closer. */
+@utility hover-zoom {
+  transition: scale 700ms var(--ease-soft);
+  @media (hover: hover) {
+    :where(.group):hover & {
+      scale: 1.04;
+    }
+  }
+}
+
+/* The hero photo sinks a little slower than the page as the hero scrolls away. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .hero-drift {
+      animation: hero-drift linear both;
+      animation-timeline: view();
+      animation-range: exit 0% exit 100%;
+    }
+  }
+}
+@keyframes hero-drift {
+  to {
+    translate: 0 8%;
+  }
+}
+
+/* Reduced motion: everything is simply in its finished state (the scroll reveals
+   don't run at all, see lib/reveal.ts). */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 1ms !important;
+    animation-delay: 0s !important;
+    transition-duration: 1ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Printing shows everything, even sections that never scrolled into view. */
+@media print {
+  [data-reveal],
+  [data-stagger] > * {
+    opacity: 1 !important;
+    translate: none !important;
+    scale: none !important;
+    clip-path: none !important;
   }
 }

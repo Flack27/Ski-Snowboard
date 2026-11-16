@@ -1,9 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
-const inputCls =
-  "w-full rounded-ctl border border-line bg-ink-800 px-3.5 py-3 text-sm text-fg outline-none placeholder:text-fg-faint focus:border-ice focus:ring-2 focus:ring-ice/20";
+import { Button } from "@/components/ui/Button";
+import { inputCls } from "@/components/ui/field";
 
 export function ContactForm({ serviceLabels }: { serviceLabels: Record<string, string> }) {
   const [form, setForm] = useState({ name: "", email: "", message: "", website: "" });
@@ -38,7 +37,7 @@ export function ContactForm({ serviceLabels }: { serviceLabels: Record<string, s
 
   if (done) {
     return (
-      <div className="rounded-card border border-ice/30 bg-ice/5 p-6 text-sm text-fg-muted">
+      <div className="animate-rise rounded-card border border-ice/30 bg-ice/5 p-6 text-base text-fg-muted">
         Bedankt! Je bericht is verstuurd. We reageren zo snel mogelijk.
       </div>
     );
@@ -47,7 +46,7 @@ export function ContactForm({ serviceLabels }: { serviceLabels: Record<string, s
   return (
     <form onSubmit={submit} className="flex flex-col gap-4">
       <div>
-        <label className="mb-1.5 block text-xs text-fg-muted">Naam *</label>
+        <label className="mb-1.5 block text-sm text-fg-muted">Naam *</label>
         <input
           required
           value={form.name}
@@ -56,7 +55,7 @@ export function ContactForm({ serviceLabels }: { serviceLabels: Record<string, s
         />
       </div>
       <div>
-        <label className="mb-1.5 block text-xs text-fg-muted">E-mailadres *</label>
+        <label className="mb-1.5 block text-sm text-fg-muted">E-mailadres *</label>
         <input
           required
           type="email"
@@ -66,7 +65,7 @@ export function ContactForm({ serviceLabels }: { serviceLabels: Record<string, s
         />
       </div>
       <div>
-        <label className="mb-1.5 block text-xs text-fg-muted">Bericht *</label>
+        <label className="mb-1.5 block text-sm text-fg-muted">Bericht *</label>
         <textarea
           required
           rows={4}
@@ -84,13 +83,9 @@ export function ContactForm({ serviceLabels }: { serviceLabels: Record<string, s
         className="hidden"
       />
       {error && <p className="text-sm text-red-400">{error}</p>}
-      <button
-        type="submit"
-        disabled={submitting}
-        className="mt-1 w-fit rounded-ctl bg-ice px-6 py-3 font-display text-sm font-semibold text-on-ice transition-colors hover:bg-ice-hover disabled:opacity-60"
-      >
+      <Button type="submit" disabled={submitting} className="mt-1 w-fit">
         {submitting ? "Bezig…" : "Verzenden"}
-      </button>
+      </Button>
     </form>
   );
 }

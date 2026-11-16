@@ -13,16 +13,22 @@ export function ProductImage({
   alt,
   className,
   sizes = DEFAULT_SIZES,
+  hoverZoom,
+  priority,
 }: {
   url: string | null;
   alt: string;
   className?: string;
   sizes?: string;
+  /** Load first: for photos in the first screen (the page's largest image). */
+  priority?: boolean;
+  /** Zoom the photo in slightly while the surrounding card (`.group`) is hovered. */
+  hoverZoom?: boolean;
 }) {
   if (!url) {
     return (
       <div className={clsx("flex w-full items-center justify-center bg-ink-800", className)}>
-        <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-fg-faint">
+        <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-fg-faint">
           Foto volgt
         </span>
       </div>
@@ -36,9 +42,17 @@ export function ProductImage({
         aria-hidden
         fill
         sizes={sizes}
+        priority={priority}
         className="scale-125 object-cover opacity-30 blur-2xl"
       />
-      <Image src={url} alt={alt} fill sizes={sizes} className="img-treatment object-contain" />
+      <Image
+        src={url}
+        alt={alt}
+        fill
+        sizes={sizes}
+        priority={priority}
+        className={clsx("img-treatment object-contain", hoverZoom && "hover-zoom")}
+      />
     </div>
   );
 }

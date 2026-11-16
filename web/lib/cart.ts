@@ -2,6 +2,8 @@
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { effectiveCents } from "./money";
+import type { Product } from "./products";
 
 // A cart line keeps a display snapshot (name/price/image) so the drawer can render
 // without extra fetches. Prices here are for DISPLAY ONLY — the checkout API always
@@ -16,6 +18,19 @@ export type CartItem = {
   slug: string;
   stock: number;
 };
+
+/** The cart line snapshot for a product, shown with its first photo. */
+export function toCartItem(p: Product, image: string | null): Omit<CartItem, "qty"> {
+  return {
+    id: p.id,
+    name: p.name,
+    priceCents: effectiveCents(p.price, p.sale_price),
+    regularCents: p.price,
+    image,
+    slug: p.slug,
+    stock: p.stock,
+  };
+}
 
 type CartState = {
   items: CartItem[];

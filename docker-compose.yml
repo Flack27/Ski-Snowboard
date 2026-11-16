@@ -27,7 +27,6 @@ services:
         - NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL}
         - NEXT_PUBLIC_POCKETBASE_URL=${NEXT_PUBLIC_POCKETBASE_URL}
         - NEXT_PUBLIC_TURNSTILE_SITE_KEY=${NEXT_PUBLIC_TURNSTILE_SITE_KEY}
-        - NEXT_PUBLIC_GOOGLE_PLACE_ID=${NEXT_PUBLIC_GOOGLE_PLACE_ID}
     container_name: spapens-web
     restart: unless-stopped
     depends_on:
@@ -45,7 +44,6 @@ services:
       - MAIL_OWNER=${MAIL_OWNER}
       - REVALIDATE_SECRET=${REVALIDATE_SECRET}
       - TURNSTILE_SECRET_KEY=${TURNSTILE_SECRET_KEY}
-      - NEXT_PUBLIC_GOOGLE_PLACE_ID=${NEXT_PUBLIC_GOOGLE_PLACE_ID}
       - GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY}
     ports:
       # LAN preview (3000 is taken by the Josette stack, so 3001 on the host).

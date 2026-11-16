@@ -1,6 +1,7 @@
 // Read-side product data from PocketBase. Server-only (uses the internal PB URL).
 // Reads are cached with the "products" tag so the PocketBase hook can revalidate on edit.
 import { sanitizeHtml } from "./html";
+import { slugify } from "./slug";
 
 const PB_INTERNAL = process.env.POCKETBASE_URL ?? "http://127.0.0.1:8090";
 const PB_PUBLIC = process.env.NEXT_PUBLIC_POCKETBASE_URL ?? "http://127.0.0.1:8090";
@@ -20,6 +21,7 @@ export type Product = {
   active: boolean;
   sort: number;
   images: string[];
+  updated: string; // PocketBase timestamp, used for sitemap lastmod
 };
 
 // eslint-disable-next-line
@@ -28,7 +30,7 @@ function mapProduct(r: any): Product {
     id: r.id,
     collectionId: r.collectionId,
     name: r.name ?? "",
-    slug: r.slug ?? "",
+    slug: slugify(r.slug || r.name || "") || r.id,
     // Rendered as HTML in the product modal; sanitise to a safe formatting subset
     // so pasted editor/ChatGPT markup (stray <div>s, attributes) can't leak in.
     description: sanitizeHtml(r.description ?? ""),
@@ -41,6 +43,7 @@ function mapProduct(r: any): Product {
     active: !!r.active,
     sort: r.sort ?? 0,
     images: Array.isArray(r.images) ? r.images : [],
+    updated: r.updated ?? "",
   };
 }
 
@@ -58,35 +61,29 @@ async function pbGet(path: string) {
   }
 }
 
-export async function getProducts(opts?: { category?: string }): Promise<Product[]> {
+export async function getProducts(): Promise<Product[]> {
   const params = new URLSearchParams({ perPage: "200", sort: "sort,-created" });
   const data = await pbGet(`/api/collections/products/records?${params.toString()}`);
-  let items: Product[] = (data.items ?? []).map(mapProduct);
-  if (opts?.category) items = items.filter((p) => p.category === opts.category);
+  const items: Product[] = (data.items ?? []).map(mapProduct);
+  // Slugs are normalised from free text, so two items could land on the same one
+  // (e.g. two identical second-hand skis). Keep every product URL unique.
+  const seen = new Set<string>();
+  for (const p of items) {
+    if (seen.has(p.slug)) p.slug = `${p.slug}-${p.id.slice(0, 5)}`;
+    seen.add(p.slug);
+  }
   return items;
 }
 
+/** Looks up by the normalised slug the site links to (not the raw admin value). */
 export async function getProductBySlug(slug: string): Promise<Product | null> {
-  const params = new URLSearchParams({
-    perPage: "1",
-    filter: `slug = ${JSON.stringify(slug)}`,
-  });
-  const data = await pbGet(`/api/collections/products/records?${params.toString()}`);
-  const item = (data.items ?? [])[0];
-  return item ? mapProduct(item) : null;
+  return (await getProducts()).find((p) => p.slug === slug) ?? null;
 }
 
 // PocketBase thumb formats: "WxH" crops to that box, "WxHf" fits inside it and
 // keeps the original ratio. Product shots must stay uncropped — use the "f" form.
 
-/** Public file URL (via the browser-reachable PB URL) for the first image, optionally a thumb. */
-export function productImageUrl(p: Product, thumb?: string): string | null {
-  if (!p.images.length) return null;
-  const q = thumb ? `?thumb=${thumb}` : "";
-  return `${PB_PUBLIC}/api/files/${p.collectionId}/${p.id}/${p.images[0]}${q}`;
-}
-
-/** All image URLs for a product (for the detail gallery). */
+/** Public image URLs for a product (via the browser-reachable PB URL), optionally thumbs. */
 export function productImageUrls(p: Product, thumb?: string): string[] {
   const q = thumb ? `?thumb=${thumb}` : "";
   return p.images.map((f) => `${PB_PUBLIC}/api/files/${p.collectionId}/${p.id}/${f}${q}`);

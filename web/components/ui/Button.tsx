@@ -6,7 +6,7 @@ export type ButtonVariant = "primary" | "secondary" | "soft";
 export type ButtonSize = "sm" | "md" | "lg";
 
 const base =
-  "inline-flex items-center justify-center gap-2 font-display font-semibold rounded-ctl transition-colors select-none disabled:cursor-not-allowed";
+  "press inline-flex items-center justify-center gap-2 font-display font-semibold rounded-ctl select-none disabled:cursor-not-allowed";
 
 const variantCls: Record<ButtonVariant, string> = {
   primary:

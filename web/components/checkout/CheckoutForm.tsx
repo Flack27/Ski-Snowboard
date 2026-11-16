@@ -7,9 +7,9 @@ import clsx from "clsx";
 import { Container } from "@/components/layout/Container";
 import { useCart, useCartSubtotal } from "@/lib/cart";
 import { formatCents } from "@/lib/money";
-
-const inputCls =
-  "w-full rounded-ctl border border-line bg-ink-800 px-3.5 py-3 text-sm text-fg outline-none placeholder:text-fg-faint focus:border-ice focus:ring-2 focus:ring-ice/20";
+import { Button } from "@/components/ui/Button";
+import { Icon } from "@/components/ui/Icon";
+import { inputCls } from "@/components/ui/field";
 
 export function CheckoutForm({
   shippingEnabled,
@@ -65,11 +65,11 @@ export function CheckoutForm({
   if (items.length === 0) {
     return (
       <Container className="py-20">
-        <h1 className="mb-4 font-display text-2xl font-semibold">Afrekenen</h1>
-        <p className="text-fg-dim">
+        <h1 className="mb-4 animate-rise font-display text-2xl font-semibold">Afrekenen</h1>
+        <p className="animate-rise text-fg-dim [animation-delay:80ms]">
           Je winkelwagen is leeg.{" "}
-          <Link href="/shop" className="text-ice hover:text-ice-hover">
-            Naar de shop →
+          <Link href="/shop" className="group text-ice transition-colors hover:text-ice-hover">
+            Naar de shop <span className="link-arrow">→</span>
           </Link>
         </p>
       </Container>
@@ -78,21 +78,21 @@ export function CheckoutForm({
 
   return (
     <Container className="py-16 md:py-20">
-      <h1 className="mb-8 font-display text-3xl font-semibold md:text-4xl">Afrekenen</h1>
-      <div className="grid gap-10 lg:grid-cols-[1.4fr_1fr]">
+      <h1 className="mb-8 animate-rise font-display text-3xl font-semibold md:text-4xl">Afrekenen</h1>
+      <div className="grid animate-rise gap-10 [animation-delay:100ms] lg:grid-cols-[1.4fr_1fr]">
         <form onSubmit={submit} className="order-2 lg:order-1">
           <div className="mb-4 font-mono text-[11px] uppercase tracking-[0.14em] text-ice">Gegevens</div>
           <div className="flex flex-col gap-4">
             <div>
-              <label className="mb-1.5 block text-xs text-fg-muted">Naam *</label>
+              <label className="mb-1.5 block text-sm text-fg-muted">Naam *</label>
               <input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Voor- en achternaam" className={inputCls} />
             </div>
             <div>
-              <label className="mb-1.5 block text-xs text-fg-muted">E-mailadres *</label>
+              <label className="mb-1.5 block text-sm text-fg-muted">E-mailadres *</label>
               <input required type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="jij@voorbeeld.nl" className={inputCls} />
             </div>
             <div>
-              <label className="mb-1.5 block text-xs text-fg-muted">Telefoon (optioneel)</label>
+              <label className="mb-1.5 block text-sm text-fg-muted">Telefoon (optioneel)</label>
               <input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} placeholder="06 …" className={inputCls} />
             </div>
           </div>
@@ -168,21 +168,22 @@ export function CheckoutForm({
 
           {error && <p className="mt-4 text-sm text-red-400">{error}</p>}
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="mt-6 w-full rounded-ctl bg-ice py-3.5 font-display text-sm font-semibold text-on-ice transition-colors hover:bg-ice-hover disabled:opacity-60"
-          >
+          <Button type="submit" disabled={loading} size="lg" fullWidth className="mt-6">
             {loading
               ? "Bezig…"
               : payOnline
                 ? `Betaal ${formatCents(total)}`
                 : `Reserveren — betaal ${formatCents(total)} bij ophalen`}
-          </button>
-          <p className="mt-3 text-center font-mono text-[10px] text-fg-faint">
-            {payOnline
-              ? "🔒 Veilig via Mollie · iDEAL, creditcard & Bancontact"
-              : "Je bestelling wordt gereserveerd — betaal bij het ophalen in Hilvarenbeek."}
+          </Button>
+          <p className="mt-3 flex items-center justify-center gap-1.5 text-center font-mono text-xs text-fg-faint">
+            {payOnline ? (
+              <>
+                <Icon name="lock" className="h-3.5 w-3.5" />
+                Veilig via Mollie · iDEAL, creditcard &amp; Bancontact
+              </>
+            ) : (
+              "Je bestelling wordt gereserveerd — betaal bij het ophalen in Hilvarenbeek."
+            )}
           </p>
         </form>
 

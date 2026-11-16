@@ -1,4 +1,6 @@
 import { SITE } from "@/lib/site";
+import { OG_IMAGE } from "@/lib/seo";
+import { JsonLd } from "./JsonLd";
 
 // schema.org LocalBusiness (SportingGoodsStore) for local SEO.
 export function LocalBusinessJsonLd() {
@@ -11,7 +13,9 @@ export function LocalBusinessJsonLd() {
     url: SITE.url,
     telephone: SITE.phone,
     email: SITE.email,
-    image: `${SITE.url}/logo.png`,
+    logo: `${SITE.url}/logo.png`,
+    image: `${SITE.url}${OG_IMAGE.url}`,
+    hasMap: SITE.google.mapsUrl,
     priceRange: "€€",
     address: {
       "@type": "PostalAddress",
@@ -29,11 +33,5 @@ export function LocalBusinessJsonLd() {
     areaServed: { "@type": "City", name: "Hilvarenbeek" },
   };
 
-  return (
-    <script
-      type="application/ld+json"
-      // eslint-disable-next-line react/no-danger
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
-    />
-  );
+  return <JsonLd data={data} />;
 }

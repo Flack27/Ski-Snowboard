@@ -7,7 +7,7 @@ export function SiteFooter() {
 
   return (
     <footer className="border-t border-line bg-ink-800">
-      <Container bleedAtWide className="grid gap-10 py-14 md:grid-cols-3">
+      <Container className="grid gap-10 py-14 md:grid-cols-3">
         <div>
           <div className="font-display text-base font-semibold">{SITE.name}</div>
           <p className="mt-3 max-w-xs text-sm leading-relaxed text-fg-dim">{SITE.description}</p>
@@ -18,7 +18,7 @@ export function SiteFooter() {
           <ul className="mt-4 space-y-2 text-fg-muted">
             {NAV.map((i) => (
               <li key={i.href}>
-                <Link href={i.href} className="hover:text-fg">
+                <Link href={i.href} className="transition-colors hover:text-fg">
                   {i.label}
                 </Link>
               </li>
@@ -34,12 +34,12 @@ export function SiteFooter() {
               {SITE.address.postalCode} {SITE.address.city}
             </div>
             <div>
-              <a href={`tel:${SITE.phone}`} className="font-mono hover:text-fg">
+              <a href={`tel:${SITE.phone}`} className="font-mono transition-colors hover:text-fg">
                 {SITE.phoneDisplay}
               </a>
             </div>
             <div>
-              <a href={`mailto:${SITE.email}`} className="break-all hover:text-fg">
+              <a href={`mailto:${SITE.email}`} className="break-all transition-colors hover:text-fg">
                 {SITE.email}
               </a>
             </div>
@@ -48,7 +48,7 @@ export function SiteFooter() {
       </Container>
 
       <div className="border-t border-line">
-        <Container bleedAtWide className="flex items-center justify-between py-5 text-xs text-fg-faint">
+        <Container className="flex items-center justify-between py-5 text-xs text-fg-faint">
           <span>
             © {year} {SITE.name}
           </span>

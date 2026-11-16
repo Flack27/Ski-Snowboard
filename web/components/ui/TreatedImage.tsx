@@ -14,6 +14,7 @@ export function TreatedImage({
   rounded,
   overlay = "vignette",
   filter = true,
+  hoverZoom,
 }: {
   src: string;
   alt: string;
@@ -23,6 +24,8 @@ export function TreatedImage({
   rounded?: boolean;
   overlay?: "vignette" | "none";
   filter?: boolean;
+  /** Zoom in slightly while the surrounding card link (`.group`) is hovered. */
+  hoverZoom?: boolean;
 }) {
   return (
     <div className={clsx("relative overflow-hidden bg-ink-700", rounded && "rounded-card", className)}>
@@ -32,7 +35,7 @@ export function TreatedImage({
         fill
         priority={priority}
         sizes={sizes}
-        className={clsx("object-cover", filter && "img-treatment")}
+        className={clsx("object-cover", filter && "img-treatment", hoverZoom && "hover-zoom")}
       />
       {overlay === "vignette" && (
         <div
