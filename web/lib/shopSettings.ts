@@ -1,5 +1,5 @@
 // Shop-wide settings the owner controls in PocketBase (shipping toggle + price).
-const PB = process.env.POCKETBASE_URL ?? "http://127.0.0.1:8090";
+import { PB_URL } from "./pocketbase";
 
 export type ShopSettings = {
   shippingEnabled: boolean;
@@ -8,7 +8,7 @@ export type ShopSettings = {
 
 export async function getShopSettings(): Promise<ShopSettings> {
   try {
-    const res = await fetch(`${PB}/api/collections/settings/records?perPage=1`, {
+    const res = await fetch(`${PB_URL}/api/collections/settings/records?perPage=1`, {
       next: { revalidate: 300, tags: ["shop-settings"] },
     });
     if (!res.ok) return { shippingEnabled: false, shippingPrice: 0 };

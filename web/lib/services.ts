@@ -1,9 +1,7 @@
 // Read-side service data from PocketBase (editable by the shop owner in the admin).
 import { htmlToText } from "./html";
 import { slugify } from "./slug";
-
-const PB_INTERNAL = process.env.POCKETBASE_URL ?? "http://127.0.0.1:8090";
-const PB_PUBLIC = process.env.NEXT_PUBLIC_POCKETBASE_URL ?? "http://127.0.0.1:8090";
+import { PB_PUBLIC_URL, PB_URL } from "./pocketbase";
 
 export type Service = {
   id: string;
@@ -45,7 +43,7 @@ function mapService(r: any): Service {
 export async function getServices(): Promise<Service[]> {
   try {
     const res = await fetch(
-      `${PB_INTERNAL}/api/collections/services/records?perPage=50&sort=sort`,
+      `${PB_URL}/api/collections/services/records?perPage=50&sort=sort`,
       { next: { revalidate: 300, tags: ["services"] } },
     );
     if (!res.ok) return [];
@@ -61,5 +59,5 @@ export async function getServices(): Promise<Service[]> {
 export function serviceImageUrl(s: Service, thumb?: string): string | null {
   if (!s.image) return null;
   const q = thumb ? `?thumb=${thumb}` : "";
-  return `${PB_PUBLIC}/api/files/${s.collectionId}/${s.id}/${s.image}${q}`;
+  return `${PB_PUBLIC_URL}/api/files/${s.collectionId}/${s.id}/${s.image}${q}`;
 }

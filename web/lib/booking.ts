@@ -1,7 +1,5 @@
-import { createAdminClient } from "./pocketbase";
+import { createAdminClient, PB_URL } from "./pocketbase";
 import type { Service } from "./services";
-
-const PB = process.env.POCKETBASE_URL ?? "http://127.0.0.1:8090";
 
 type ServiceRef = Pick<Service, "slug" | "name">;
 
@@ -92,9 +90,9 @@ export async function getBookingConfig(): Promise<BookingConfig> {
   const opts = { next: { revalidate: 60, tags: ["booking-config"] } };
   try {
     const [settingsRes, slotsRes, blockedRes] = await Promise.all([
-      fetch(`${PB}/api/collections/settings/records?perPage=1`, opts),
-      fetch(`${PB}/api/collections/time_slots/records?perPage=50&sort=sort`, opts),
-      fetch(`${PB}/api/collections/blocked_dates/records?perPage=365`, opts),
+      fetch(`${PB_URL}/api/collections/settings/records?perPage=1`, opts),
+      fetch(`${PB_URL}/api/collections/time_slots/records?perPage=50&sort=sort`, opts),
+      fetch(`${PB_URL}/api/collections/blocked_dates/records?perPage=365`, opts),
     ]);
     const settings = (await settingsRes.json()).items?.[0];
     const slots: Slot[] = ((await slotsRes.json()).items ?? []).map((s: any) => ({

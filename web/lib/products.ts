@@ -1,10 +1,8 @@
-// Read-side product data from PocketBase. Server-only (uses the internal PB URL).
+// Read-side product data from PocketBase. Server-only.
 // Reads are cached with the "products" tag so the PocketBase hook can revalidate on edit.
 import { sanitizeHtml } from "./html";
 import { slugify } from "./slug";
-
-const PB_INTERNAL = process.env.POCKETBASE_URL ?? "http://127.0.0.1:8090";
-const PB_PUBLIC = process.env.NEXT_PUBLIC_POCKETBASE_URL ?? "http://127.0.0.1:8090";
+import { PB_PUBLIC_URL, PB_URL } from "./pocketbase";
 
 export type Product = {
   id: string;
@@ -49,7 +47,7 @@ function mapProduct(r: any): Product {
 
 async function pbGet(path: string) {
   try {
-    const res = await fetch(`${PB_INTERNAL}${path}`, {
+    const res = await fetch(`${PB_URL}${path}`, {
       next: { revalidate: 3600, tags: ["products"] },
     });
     if (!res.ok) return { items: [] };
@@ -86,5 +84,5 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
 /** Public image URLs for a product (via the browser-reachable PB URL), optionally thumbs. */
 export function productImageUrls(p: Product, thumb?: string): string[] {
   const q = thumb ? `?thumb=${thumb}` : "";
-  return p.images.map((f) => `${PB_PUBLIC}/api/files/${p.collectionId}/${p.id}/${f}${q}`);
+  return p.images.map((f) => `${PB_PUBLIC_URL}/api/files/${p.collectionId}/${p.id}/${f}${q}`);
 }

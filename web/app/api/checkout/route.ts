@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { revalidateTag } from "next/cache";
-import { createAdminClient } from "@/lib/pocketbase";
+import { createAdminClient, PB_URL } from "@/lib/pocketbase";
 import { mollieFromKey, isMollieKey } from "@/lib/mollie";
 import { effectiveCents, centsToMollieValue } from "@/lib/money";
 import { getShopSettings } from "@/lib/shopSettings";
@@ -9,7 +9,6 @@ import { sendReservationNotification, sendReservationConfirmation } from "@/lib/
 
 export const runtime = "nodejs";
 
-const PB = process.env.POCKETBASE_URL ?? "http://127.0.0.1:8090";
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3100";
 
 type IncomingItem = { id?: unknown; qty?: unknown };
@@ -37,7 +36,7 @@ export async function POST(req: Request) {
     const id = String(it?.id ?? "");
     const qty = Math.max(1, Math.floor(Number(it?.qty) || 1));
     if (!id) return NextResponse.json({ error: "Ongeldig artikel." }, { status: 400 });
-    const res = await fetch(`${PB}/api/collections/products/records/${encodeURIComponent(id)}`, {
+    const res = await fetch(`${PB_URL}/api/collections/products/records/${encodeURIComponent(id)}`, {
       cache: "no-store",
     });
     if (!res.ok) return NextResponse.json({ error: "Een artikel is niet meer beschikbaar." }, { status: 409 });
