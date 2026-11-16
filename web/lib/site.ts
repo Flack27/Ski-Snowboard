@@ -8,6 +8,8 @@ export const SITE = {
     "Met de hand waxen, slijpen en onderhoud van ski's en snowboards in Hilvarenbeek. Plus een wisselende voorraad tweedehands ski's, boards en gear.",
   appointmentNote:
     "De winkel en werkplaats zijn uitsluitend op afspraak geopend — plan online of bel even voordat je langskomt.",
+  // Usual time until the gear is ready again (booking panel + FAQ).
+  turnaround: "3 tot 4 werkdagen",
   email: "info@sosoutdoor.nl",
   phone: "+31657284765",
   phoneDisplay: "06 57284765",
@@ -71,6 +73,6 @@ export const FAQS = [
   },
   {
     q: "Wanneer kan ik mijn ski's of snowboard weer ophalen?",
-    a: "Dit hangt erg af van de drukte. Het duurt meestal 2 tot 3 werkdagen. Wel kun je een spoedbeurt aanvragen waarbij je de volgende dag je materiaal al kunt ophalen.",
+    a: `Dit hangt erg af van de drukte. Het duurt meestal ${SITE.turnaround}. Wel kun je een spoedbeurt aanvragen waarbij je de volgende dag je materiaal al kunt ophalen.`,
   },
 ] as const;

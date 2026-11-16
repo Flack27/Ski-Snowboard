@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import clsx from "clsx";
 import type { BookingConfig } from "@/lib/booking";
 import { formatDateNl } from "@/lib/dates";
+import { SITE } from "@/lib/site";
 import { Icon } from "@/components/ui/Icon";
 import { Button } from "@/components/ui/Button";
 import { inputCls } from "@/components/ui/field";
@@ -256,7 +257,7 @@ export function BookingWidget({
               </li>
               <li className="flex gap-3">
                 <Icon name="clock" className="text-ice" />
-                We tunen alles met de hand, meestal binnen 2 tot 3 werkdagen.
+                We tunen alles met de hand, meestal binnen {SITE.turnaround}.
               </li>
               <li className="flex gap-3">
                 <Icon name="mail" className="text-ice" />
